@@ -1,0 +1,3824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privy – Compliance Management Platform</title>
+    <style>
+        /* ───────── RESET & BASE ───────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ───────── SCROLLBAR ───────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* ───────── LAYOUT ───────── */
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ───────── SIDEBAR ───────── */
+        .sidebar {
+            width: 260px;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-brand .logo {
+            font-size: 28px;
+        }
+        .sidebar-brand h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .sidebar-brand small {
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            color: #94a3b8;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+        }
+        .sidebar-nav .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            padding: 12px 12px 6px;
+        }
+        .sidebar-nav button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-family: inherit;
+        }
+        .sidebar-nav button:hover {
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+        .sidebar-nav button.active {
+            background: #1e293b;
+            color: #fff;
+            box-shadow: inset 3px 0 0 #667eea;
+        }
+        .sidebar-nav button .icon {
+            font-size: 18px;
+            width: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .sidebar-nav button .badge {
+            margin-left: auto;
+            background: #667eea;
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* ───────── MAIN ───────── */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 24px 32px 40px;
+            min-height: 100vh;
+        }
+
+        /* ───────── TOP BAR ───────── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .topbar h2 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .topbar .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ───────── BUTTONS ───────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: #667eea;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        .btn-success {
+            background: #48bb78;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #38a169;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        .btn-warning {
+            background: #ed8936;
+            color: #fff;
+        }
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+        .btn-sm {
+            padding: 5px 14px;
+            font-size: 12px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+        .btn-info {
+            background: #4299e1;
+            color: #fff;
+        }
+        .btn-info:hover {
+            background: #3182ce;
+        }
+
+        /* ───────── CARDS ───────── */
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* ───────── STATS GRID ───────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* ───────── TABLES ───────── */
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        table tr:hover td {
+            background: #fafbfc;
+        }
+
+        /* ───────── BADGES ───────── */
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .badge-danger {
+            background: #fed7d7;
+            color: #9b2c2c;
+        }
+        .badge-warning {
+            background: #fefcbf;
+            color: #975a16;
+        }
+        .badge-info {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+        .badge-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .badge-purple {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        /* ───────── FORMS ───────── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: #334155;
+        }
+        .form-group label .required {
+            color: #f56565;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 70px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ───────── MODAL ───────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 960px;
+            width: 100%;
+            padding: 32px;
+            margin: 20px auto;
+            position: relative;
+            animation: modalIn 0.25s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #1e293b;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        /* ───────── TOAST ───────── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+        }
+        .toast {
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+        }
+        .toast-success {
+            background: #f0fff4;
+            border-color: #48bb78;
+            color: #22543d;
+        }
+        .toast-error {
+            background: #fff5f5;
+            border-color: #f56565;
+            color: #9b2c2c;
+        }
+        .toast-info {
+            background: #ebf8ff;
+            border-color: #4299e1;
+            color: #2a4365;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ───────── TABS ───────── */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ───────── CHECKBOX GRID ───────── */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 16px;
+        }
+        .checkbox-grid label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 400;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .checkbox-grid input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: #667eea;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* ───────── EMPTY STATE ───────── */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .empty-state h4 {
+            font-size: 18px;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        /* ───────── RESPONSIVE ───────── */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main {
+                margin-left: 0;
+                padding: 16px;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .modal {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+        @media (max-width: 500px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .topbar h2 {
+                font-size: 20px;
+            }
+        }
+
+        .text-muted {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .fw-600 {
+            font-weight: 600;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-box {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid #667eea;
+        }
+        .section-box h4 {
+            margin: 0 0 12px 0;
+            color: #1e293b;
+        }
+        .section-box .subtext {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        .sub-section-box {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .sub-section-box h5 {
+            margin: 0 0 12px 0;
+            color: #1e293b;
+            font-size: 15px;
+        }
+        .sub-section-box .subtext-sm {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .risk-badge-low {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .risk-badge-medium {
+            background: #fefcbf;
+            color: #975a16;
+        }
+        .risk-badge-high {
+            background: #fefcbf;
+            color: #975a16;
+        }
+        .risk-badge-critical {
+            background: #fed7d7;
+            color: #9b2c2c;
+        }
+        .risk-critical {
+            color: #9b2c2c;
+            font-weight: 700;
+        }
+        .risk-high {
+            color: #f56565;
+        }
+        .risk-medium {
+            color: #ed8936;
+        }
+        .risk-low {
+            color: #48bb78;
+        }
+        .score-display {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .score-display-low {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .score-display-medium {
+            background: #fefcbf;
+            color: #975a16;
+        }
+        .score-display-high {
+            background: #fefcbf;
+            color: #975a16;
+        }
+        .score-display-veryhigh {
+            background: #fed7d7;
+            color: #9b2c2c;
+        }
+        .residual-risk-box {
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            margin-top: 12px;
+        }
+        .residual-risk-box .risk-level {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .residual-risk-box .risk-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+        .risk-matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin: 8px 0;
+        }
+        .risk-matrix-table th,
+        .risk-matrix-table td {
+            padding: 4px 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .risk-matrix-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+        .risk-matrix-table .cell-critical {
+            background: #fed7d7;
+            font-weight: 700;
+        }
+        .risk-matrix-table .cell-high {
+            background: #fefcbf;
+        }
+        .risk-matrix-table .cell-medium {
+            background: #fefcbf;
+        }
+        .risk-matrix-table .cell-low {
+            background: #c6f6d5;
+        }
+        .dsar-public-link {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px dashed #667eea;
+            margin: 12px 0;
+        }
+        .dsar-public-link code {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+
+        <!-- ─── SIDEBAR ─── -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="logo">🔒</span>
+                <div>
+                    <h1>Privy</h1>
+                    <small>Compliance Management</small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-label">Overview</div>
+                <button class="active" data-tab="dashboard">
+                    <span class="icon">📊</span> Dashboard
+                </button>
+
+                <div class="nav-label">Projects</div>
+                <button data-tab="projects">
+                    <span class="icon">📁</span> Projects
+                    <span class="badge" id="projectBadge">0</span>
+                </button>
+                <button data-tab="mapping">
+                    <span class="icon">🗺️</span> Data Mapping
+                </button>
+
+                <div class="nav-label">Compliance</div>
+                <button data-tab="ropa">
+                    <span class="icon">📋</span> RoPA Register
+                    <span class="badge" id="ropaBadge">0</span>
+                </button>
+                <button data-tab="dpia">
+                    <span class="icon">🔍</span> DPIA
+                    <span class="badge" id="dpiaBadge">0</span>
+                </button>
+
+                <div class="nav-label">Inventory</div>
+                <button data-tab="vendors">
+                    <span class="icon">🏢</span> Vendors
+                </button>
+                <button data-tab="applications">
+                    <span class="icon">💻</span> Applications
+                </button>
+                <button data-tab="thirdparties">
+                    <span class="icon">🤝</span> Third Parties
+                </button>
+
+                <div class="nav-label">Governance</div>
+                <button data-tab="controls">
+                    <span class="icon">🛡️</span> Security Controls
+                </button>
+                <button data-tab="evidence">
+                    <span class="icon">📎</span> Evidence
+                </button>
+
+                <div class="nav-label">Data Subject Rights</div>
+                <button data-tab="dsar">
+                    <span class="icon">📩</span> DSAR Management
+                    <span class="badge" id="dsarBadge">0</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- ─── MAIN ─── -->
+        <main class="main">
+            <div class="topbar">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-sm btn-outline" onclick="refreshAll()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="toast-container" id="toastContainer"></div>
+
+            <!-- ─── DASHBOARD ─── -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card"><div class="number" id="statProjects">0</div><div class="label">Projects</div></div>
+                    <div class="stat-card"><div class="number" id="statRopa">0</div><div class="label">RoPA Records</div></div>
+                    <div class="stat-card"><div class="number" id="statDpia">0</div><div class="label">DPIAs</div></div>
+                    <div class="stat-card"><div class="number" id="statDpiaRate">0%</div><div class="label">DPIA Compliance</div></div>
+                    <div class="stat-card"><div class="number" id="statVendors">0</div><div class="label">Vendors</div></div>
+                    <div class="stat-card"><div class="number" id="statHighRisk">0</div><div class="label">High-Risk Vendors</div></div>
+                    <div class="stat-card"><div class="number" id="statDsar">0</div><div class="label">DSARs</div></div>
+                    <div class="stat-card"><div class="number" id="statPendingDsar">0</div><div class="label">Pending DSARs</div></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📋 Recent Projects</h3>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-sm btn-primary" onclick="switchTab('projects')">View All</button>
+                            <button class="btn btn-sm btn-success" onclick="generateReport('compliance')">📊 Report</button>
+                            <button class="btn btn-sm btn-warning" onclick="generateReport('risks')">⚠️ Risks</button>
+                        </div>
+                    </div>
+                    <div id="recentProjects">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── PROJECTS ─── -->
+            <div id="tab-projects" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📁 Projects</h3>
+                        <button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button>
+                    </div>
+                    <div id="projectTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── DATA MAPPING ─── -->
+            <div id="tab-mapping" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🗺️ Data Mapping</h3>
+                        <button class="btn btn-primary" onclick="openMappingModal()">+ New Mapping</button>
+                    </div>
+                    <div id="mappingTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── ROPA ─── -->
+            <div id="tab-ropa" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📋 Record of Processing Activities (RoPA)</h3>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="openRopaModal()">+ New RoPA</button>
+                            <button class="btn btn-success" onclick="generateReport('ropa')">📄 Export RoPA</button>
+                            <button class="btn btn-info" onclick="exportTableToCSV('ropaTable', 'ropa_export.csv')">📊 CSV</button>
+                        </div>
+                    </div>
+                    <div id="ropaTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── DPIA ─── -->
+            <div id="tab-dpia" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🔍 Data Protection Impact Assessments</h3>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="openDpiaModal()">+ New DPIA</button>
+                            <button class="btn btn-success" onclick="generateReport('dpia')">📄 Export DPIA</button>
+                            <button class="btn btn-info" onclick="exportTableToCSV('dpiaTable', 'dpia_export.csv')">📊 CSV</button>
+                        </div>
+                    </div>
+                    <div id="dpiaTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── VENDORS ─── -->
+            <div id="tab-vendors" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🏢 Vendor Assessments</h3>
+                        <button class="btn btn-primary" onclick="openVendorModal()">+ New Vendor</button>
+                    </div>
+                    <div id="vendorTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── APPLICATIONS ─── -->
+            <div id="tab-applications" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💻 Application Inventory</h3>
+                        <button class="btn btn-primary" onclick="openAppModal()">+ Add Application</button>
+                    </div>
+                    <div id="appTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── THIRD PARTIES ─── -->
+            <div id="tab-thirdparties" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🤝 Third-Party Inventory</h3>
+                        <button class="btn btn-primary" onclick="openThirdPartyModal()">+ Add Third Party</button>
+                    </div>
+                    <div id="thirdPartyTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── SECURITY CONTROLS ─── -->
+            <div id="tab-controls" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🛡️ Security Controls Library</h3>
+                        <button class="btn btn-primary" onclick="openControlModal()">+ Add Control</button>
+                    </div>
+                    <div id="controlTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── EVIDENCE ─── -->
+            <div id="tab-evidence" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📎 Evidence Repository</h3>
+                        <button class="btn btn-primary" onclick="openEvidenceModal()">+ Upload Evidence</button>
+                    </div>
+                    <div id="evidenceTable">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ─── DSAR MANAGEMENT ─── -->
+            <div id="tab-dsar" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📩 Data Subject Access Requests (DSAR)</h3>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="openDsarModal()">+ New DSAR</button>
+                            <button class="btn btn-info" onclick="exportTableToCSV('dsarTable', 'dsar_export.csv')">📊 CSV</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Public DSAR Link -->
+                    <div class="dsar-public-link">
+                        <strong>🔗 Public DSAR Portal:</strong> 
+                        <code id="dsarPublicUrl">http://localhost:8000/api/dsar-portal</code>
+                        <button class="btn btn-sm btn-outline" onclick="copyDsarLink()" style="margin-left:8px;">📋 Copy Link</button>
+                        <p style="font-size:13px;color:#64748b;margin-top:4px;">Share this link with data subjects to submit access requests directly.</p>
+                    </div>
+                    
+                    <div id="dsarTable">Loading...</div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--                         MODALS                                 -->
+    <!-- ============================================================ -->
+
+    <!-- ─── PROJECT MODAL ─── -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="projectModalTitle">New Project</h2>
+                <button class="modal-close" onclick="closeModal('projectModal')">&times;</button>
+            </div>
+            <form id="projectForm">
+                <input type="hidden" id="projectEditId" />
+                <div class="form-group">
+                    <label>Project Name <span class="required">*</span></label>
+                    <input class="form-control" id="projectName" placeholder="e.g., Customer Portal Upgrade" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Project Owner</label>
+                        <input class="form-control" id="projectOwner" placeholder="e.g., John Doe" />
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-control" id="projectDept">
+                            <option value="">Select...</option>
+                            <option>Finance</option>
+                            <option>HR</option>
+                            <option>IT</option>
+                            <option>Marketing</option>
+                            <option>Executive</option>
+                            <option>Operations</option>
+                            <option>Legal</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Vendor (if applicable)</label>
+                        <input class="form-control" id="projectVendor" placeholder="e.g., Microsoft, AWS" />
+                    </div>
+                    <div class="form-group">
+                        <label>Development Stage</label>
+                        <select class="form-control" id="projectStage">
+                            <option value="Requirements">Requirements</option>
+                            <option value="Design">Design</option>
+                            <option value="Development">Development</option>
+                            <option value="Testing">Testing</option>
+                            <option value="Production">Production</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Go-Live Date</label>
+                    <input class="form-control" id="projectGoLive" type="date" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('projectModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── DATA MAPPING MODAL ─── -->
+    <div class="modal-overlay" id="mappingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Data Mapping</h2>
+                <button class="modal-close" onclick="closeModal('mappingModal')">&times;</button>
+            </div>
+            <form id="mappingForm">
+                <input type="hidden" id="mappingEditId" />
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="mappingProjectId" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Personal Data Category</label>
+                        <input class="form-control" id="mappingPersonal" placeholder="e.g., Name, Email, Phone" />
+                    </div>
+                    <div class="form-group">
+                        <label>Sensitive Data Category</label>
+                        <input class="form-control" id="mappingSensitive" placeholder="e.g., Health, Biometric, Financial" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Subject Category</label>
+                        <input class="form-control" id="mappingSubject" placeholder="e.g., Employees, Customers" />
+                    </div>
+                    <div class="form-group">
+                        <label>Source of Data</label>
+                        <input class="form-control" id="mappingSource" placeholder="e.g., Web forms, CRM, HR system" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Storage Location</label>
+                    <input class="form-control" id="mappingStorage" placeholder="e.g., AWS S3, On-premise SQL Server" />
+                </div>
+                <div class="form-group">
+                    <label>Recipients (comma separated)</label>
+                    <input class="form-control" id="mappingRecipients" placeholder="e.g., Finance, HR, Marketing" />
+                </div>
+                <div class="form-group">
+                    <label>Third Parties (comma separated)</label>
+                    <input class="form-control" id="mappingThirdParties" placeholder="e.g., AWS, Microsoft, Salesforce" />
+                </div>
+                <div class="form-group">
+                    <label>Cross-Border Transfers (format: country:legal_basis)</label>
+                    <input class="form-control" id="mappingTransfers" placeholder="e.g., UK:GDPR, USA:Privacy Shield" />
+                </div>
+                <div class="form-group">
+                    <label>Data Flow Diagram (URL)</label>
+                    <input class="form-control" id="mappingFlowDiagram" placeholder="https://example.com/diagram.png" />
+                </div>
+                <div class="form-group">
+                    <label>Visual Data Map (URL)</label>
+                    <input class="form-control" id="mappingVisualMap" placeholder="https://example.com/visual-map.png" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('mappingModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Mapping</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── ROPA MODAL ─── -->
+    <div class="modal-overlay" id="ropaModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="ropaModalTitle">New RoPA Record</h2>
+                <button class="modal-close" onclick="closeModal('ropaModal')">&times;</button>
+            </div>
+            <form id="ropaForm">
+                <input type="hidden" id="ropaEditId" />
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="ropaProjectId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Processing Activity <span class="required">*</span></label>
+                    <input class="form-control" id="ropaActivity" placeholder="e.g., Employee Payroll Processing" required />
+                </div>
+                <div class="form-group">
+                    <label>Purpose <span class="required">*</span></label>
+                    <textarea class="form-control" id="ropaPurpose" placeholder="Describe the purpose of processing" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Lawful Basis <span class="required">*</span></label>
+                        <select class="form-control" id="ropaLawfulBasis" required>
+                            <option value="">Select...</option>
+                            <option>Consent</option>
+                            <option>Contract</option>
+                            <option>Legal Obligation</option>
+                            <option>Legitimate Interests</option>
+                            <option>Public Interest</option>
+                            <option>Vital Interest</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Retention Period</label>
+                        <input class="form-control" id="ropaRetention" placeholder="e.g., 5 years, 30 days" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Controller Name</label>
+                        <input class="form-control" id="ropaController" placeholder="e.g., Yelbridges Ltd" />
+                    </div>
+                    <div class="form-group">
+                        <label>Controller Email</label>
+                        <input class="form-control" id="ropaControllerEmail" type="email" placeholder="dpo@company.com" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Processor Name</label>
+                        <input class="form-control" id="ropaProcessor" placeholder="e.g., AWS" />
+                    </div>
+                    <div class="form-group">
+                        <label>Processor Email</label>
+                        <input class="form-control" id="ropaProcessorEmail" type="email" placeholder="processor@aws.com" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Protection Officer</label>
+                        <input class="form-control" id="ropaDPO" placeholder="e.g., Jane Smith" />
+                    </div>
+                    <div class="form-group">
+                        <label>DPO Email</label>
+                        <input class="form-control" id="ropaDPOEmail" type="email" placeholder="dpo@company.com" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ODPC Registration Number</label>
+                    <input class="form-control" id="ropaRegNumber" placeholder="e.g., ODPC/2024/001" />
+                </div>
+                <div class="form-group">
+                    <label>Data Subjects (comma separated)</label>
+                    <input class="form-control" id="ropaSubjects" placeholder="e.g., Employees, Contractors, Customers" />
+                </div>
+                <div class="form-group">
+                    <label>Personal Data Categories (comma separated)</label>
+                    <input class="form-control" id="ropaCategories" placeholder="e.g., Name, Email, Phone, ID Number" />
+                </div>
+                <div class="form-group">
+                    <label>Recipients (comma separated)</label>
+                    <input class="form-control" id="ropaRecipients" placeholder="e.g., Finance, HR, Payroll Provider" />
+                </div>
+                <div class="form-group">
+                    <label>Security Measures (comma separated)</label>
+                    <input class="form-control" id="ropaSecurity" placeholder="e.g., Encryption, Access Control, MFA" />
+                </div>
+                <div class="form-group">
+                    <label>International Transfers (format: country:legal_basis)</label>
+                    <input class="form-control" id="ropaTransfers" placeholder="e.g., UK:Adequacy Decision, USA:Standard Contractual Clauses" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('ropaModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save RoPA</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── DPIA MODAL ─── -->
+    <div class="modal-overlay" id="dpiaModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="dpiaModalTitle">Data Protection Impact Assessment</h2>
+                <button class="modal-close" onclick="closeModal('dpiaModal')">&times;</button>
+            </div>
+            <form id="dpiaForm">
+                <input type="hidden" id="dpiaEditId" />
+
+                <!-- Step 1: Select Project -->
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="dpiaProjectId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>RoPA Entry (optional)</label>
+                    <select class="form-control" id="dpiaRopaId">
+                        <option value="">None</option>
+                    </select>
+                </div>
+
+                <!-- SECTION 1: SCREENING QUESTIONS -->
+                <div class="section-box">
+                    <h4>🔍 Step 1: DPIA Screening</h4>
+                    <p class="subtext">Answer these questions to determine if a full DPIA is required.</p>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" id="dpiaSensitive" /> Processes sensitive data?</label>
+                        <label><input type="checkbox" id="dpiaAI" /> Uses AI / machine learning?</label>
+                        <label><input type="checkbox" id="dpiaMonitor" /> Monitors individuals?</label>
+                        <label><input type="checkbox" id="dpiaChildren" /> Processes children's data?</label>
+                        <label><input type="checkbox" id="dpiaAutomated" /> Automated decision-making?</label>
+                        <label><input type="checkbox" id="dpiaLargeScale" /> Large-scale processing?</label>
+                        <label><input type="checkbox" id="dpiaSystematic" /> Systematic monitoring?</label>
+                        <label><input type="checkbox" id="dpiaInnovative" /> Innovative technology?</label>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Screening Notes</label>
+                        <textarea class="form-control" id="dpiaScreeningNotes" placeholder="Document any additional context..."></textarea>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: DESCRIPTION OF PROCESSING -->
+                <div class="section-box">
+                    <h4>📝 Step 2: Description of Processing Operations</h4>
+                    <div class="form-group">
+                        <label>DPIA Name <span class="required">*</span></label>
+                        <input class="form-control" id="dpiaName" placeholder="e.g., Customer Portal Data Processing" required />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Owner Department</label>
+                            <select class="form-control" id="dpiaDepartment">
+                                <option value="">Select...</option>
+                                <option>Finance</option>
+                                <option>HR</option>
+                                <option>IT</option>
+                                <option>Marketing</option>
+                                <option>Executive</option>
+                                <option>Operations</option>
+                                <option>Legal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Email</label>
+                            <input class="form-control" id="dpiaEmail" type="email" placeholder="contact@company.com" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Processing Type</label>
+                            <select class="form-control" id="dpiaProcessingType">
+                                <option value="Controller">Controller</option>
+                                <option value="Processor">Processor</option>
+                                <option value="Joint Controller">Joint Controller</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Classification</label>
+                            <select class="form-control" id="dpiaClassification">
+                                <option value="Personal">Personal Data</option>
+                                <option value="Sensitive">Sensitive Personal Data</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Number of Data Subjects</label>
+                            <input class="form-control" id="dpiaSubjectCount" type="number" placeholder="e.g., 1000" />
+                        </div>
+                        <div class="form-group">
+                            <label>Lawful Basis</label>
+                            <select class="form-control" id="dpiaLawfulBasis">
+                                <option value="">Select...</option>
+                                <option>Consent</option>
+                                <option>Contract</option>
+                                <option>Legal Obligation</option>
+                                <option>Legitimate Interests</option>
+                                <option>Public Interest</option>
+                                <option>Vital Interest</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Purpose of Processing</label>
+                        <textarea class="form-control" id="dpiaPurpose" placeholder="Describe the specific purpose..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Types (comma separated)</label>
+                        <input class="form-control" id="dpiaDataTypes" placeholder="e.g., Name, Email, Phone, ID Number" />
+                    </div>
+                    <div class="form-group">
+                        <label>High-Risk Processing Type</label>
+                        <select class="form-control" id="dpiaHighRisk">
+                            <option value="">None</option>
+                            <option>General processing</option>
+                            <option>Extensive evaluation and profiling</option>
+                            <option>Processing of sensitive data</option>
+                            <option>Processing biometric or genetic data</option>
+                            <option>Systematic monitoring</option>
+                            <option>Innovative use of new technologies</option>
+                            <option>Automated decision making</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Flow Description</label>
+                        <textarea class="form-control" id="dpiaDataFlow" placeholder="Describe how data flows through your systems..."></textarea>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: NECESSITY & PROPORTIONALITY -->
+                <div class="section-box">
+                    <h4>⚖️ Step 3: Assessment of Necessity & Proportionality</h4>
+                    <p class="subtext">Evaluate whether the processing is justified and limited to what is necessary.</p>
+                    <div class="form-group">
+                        <label>What is your lawful basis for processing?</label>
+                        <textarea class="form-control" id="dpiaLawfulDesc" placeholder="Document the legal justification..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Does the processing actually achieve your purpose?</label>
+                        <select class="form-control" id="dpiaAchieves">
+                            <option value="true">Yes - The processing achieves the stated purpose</option>
+                            <option value="false">No - The processing does not achieve the stated purpose</option>
+                            <option value="partial">Partially - Some elements achieve the purpose</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>How will you ensure data quality and data minimization?</label>
+                        <textarea class="form-control" id="dpiaQuality" placeholder="Describe processes ensuring data accuracy and minimization..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>How is consent obtained (if applicable)?</label>
+                        <textarea class="form-control" id="dpiaConsent" placeholder="Describe how and when consent is obtained..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Is there another way to achieve the same outcome?</label>
+                        <textarea class="form-control" id="dpiaAlternatives" placeholder="Evaluate less privacy-intrusive methods..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>What information will you give individuals?</label>
+                        <textarea class="form-control" id="dpiaInfo" placeholder="Specify privacy notices and policies..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>What parties are involved and what are their specific roles?</label>
+                        <textarea class="form-control" id="dpiaParties" placeholder="Identify all controllers, processors, third parties..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>How do you safeguard international transfers?</label>
+                        <textarea class="form-control" id="dpiaTransfers" placeholder="Document mechanisms for cross-border data transfers..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>What measures ensure compliance by Controller and Processor?</label>
+                        <textarea class="form-control" id="dpiaCompliance" placeholder="Describe contractual and operational arrangements..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>How do you safeguard the processing of personal data?</label>
+                        <textarea class="form-control" id="dpiaSafeguards" placeholder="Document technical and organizational security measures..."></textarea>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: RISK IDENTIFICATION -->
+                <div class="section-box">
+                    <h4>⚠️ Step 4: Risk Identification</h4>
+                    <p class="subtext">Identify and document potential risks to the rights and freedoms of data subjects.</p>
+                    <div class="sub-section-box">
+                        <h5>4.1 Risk Register</h5>
+                        <div class="form-group">
+                            <label>Risk Name <span class="required">*</span></label>
+                            <input class="form-control" id="riskName" placeholder="e.g., Unauthorized Data Access" />
+                        </div>
+                        <div class="form-group">
+                            <label>Risk Description</label>
+                            <textarea class="form-control" id="riskDescription" placeholder="Describe the risk in detail..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Risk Category</label>
+                                <select class="form-control" id="riskCategory">
+                                    <option value="Data Breach">Data Breach</option>
+                                    <option value="Unauthorized Access">Unauthorized Access</option>
+                                    <option value="Data Loss">Data Loss</option>
+                                    <option value="Inaccurate Data">Inaccurate Data</option>
+                                    <option value="Non-Compliance">Non-Compliance</option>
+                                    <option value="Third-Party Risk">Third-Party Risk</option>
+                                    <option value="System Failure">System Failure</option>
+                                    <option value="Human Error">Human Error</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Risk Owner</label>
+                                <input class="form-control" id="riskOwner" placeholder="e.g., John Doe" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Risk Source / Threat Agent</label>
+                            <input class="form-control" id="riskSource" placeholder="e.g., External attacker, Malicious insider" />
+                        </div>
+                        <div class="form-group">
+                            <label>Vulnerability / Weakness</label>
+                            <textarea class="form-control" id="riskVulnerability" placeholder="Describe the vulnerability..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Likelihood</label>
+                                <select class="form-control" id="riskLikelihoodCriteria">
+                                    <option value="Remote">Remote</option>
+                                    <option value="Unlikely">Unlikely</option>
+                                    <option value="Possible" selected>Possible</option>
+                                    <option value="Likely">Likely</option>
+                                    <option value="Certain">Certain</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Impact</label>
+                                <select class="form-control" id="riskImpactCriteria">
+                                    <option value="Insignificant">Insignificant</option>
+                                    <option value="Minor">Minor</option>
+                                    <option value="Significant" selected>Significant</option>
+                                    <option value="Major">Major</option>
+                                    <option value="Severe">Severe</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Security Triad</label>
+                            <select class="form-control" id="riskSecurityTriad">
+                                <option value="Confidentiality">Confidentiality</option>
+                                <option value="Integrity">Integrity</option>
+                                <option value="Availability">Availability</option>
+                            </select>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <button type="button" class="btn btn-sm btn-primary" id="addRiskBtn">+ Add Risk to List</button>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <label>Identified Risks</label>
+                        <div id="riskListContainer" style="margin-top:8px;">
+                            <p class="text-muted" style="font-size:13px;">No risks added yet.</p>
+                        </div>
+                        <input type="hidden" id="dpiaRisksData" value="[]" />
+                    </div>
+                </div>
+
+                <!-- SECTION 5: PRIVACY RISK EVALUATION -->
+                <div class="section-box">
+                    <h4>📊 Step 5: Privacy Risk Evaluation</h4>
+                    <p class="subtext">Assess the impact, likelihood, existing controls, and residual risk.</p>
+
+                    <!-- 5.1 Impact Assessment -->
+                    <div class="sub-section-box">
+                        <h5>5.1 Impact Assessment</h5>
+                        <p class="subtext-sm">If something goes wrong, what is the impact on the data subject?</p>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" id="impactFinancial" /> Financial loss</label>
+                            <label><input type="checkbox" id="impactIdentity" /> Identity theft</label>
+                            <label><input type="checkbox" id="impactDiscrimination" /> Discrimination</label>
+                            <label><input type="checkbox" id="impactReputation" /> Reputational damage</label>
+                            <label><input type="checkbox" id="impactConfidentiality" /> Loss of confidentiality</label>
+                            <label><input type="checkbox" id="impactPhysical" /> Physical harm</label>
+                            <label><input type="checkbox" id="impactPsychological" /> Psychological distress</label>
+                            <label><input type="checkbox" id="impactRights" /> Loss of rights/freedoms</label>
+                            <label><input type="checkbox" id="impactOther" /> Other</label>
+                        </div>
+                        <div class="form-group" style="margin-top:12px;">
+                            <label>Impact Rating</label>
+                            <select class="form-control" id="impactRating">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Impact Description</label>
+                            <textarea class="form-control" id="impactDescription" placeholder="Describe the potential impact..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 5.2 Likelihood Assessment -->
+                    <div class="sub-section-box">
+                        <h5>5.2 Likelihood Assessment</h5>
+                        <p class="subtext-sm">Answer the following questions to determine the likelihood of a risk occurring.</p>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" id="likelihoodSensitive" /> Sensitive data processed?</label>
+                            <label><input type="checkbox" id="likelihoodLargeVolume" /> Large volume of records?</label>
+                            <label><input type="checkbox" id="likelihoodAutomated" /> Automated decision-making involved?</label>
+                            <label><input type="checkbox" id="likelihoodThirdParty" /> Third parties receive data?</label>
+                            <label><input type="checkbox" id="likelihoodInternational" /> Data transferred internationally?</label>
+                            <label><input type="checkbox" id="likelihoodChildren" /> Children/vulnerable persons involved?</label>
+                            <label><input type="checkbox" id="likelihoodNewTech" /> New technology used?</label>
+                        </div>
+                        <div style="margin-top:12px;padding:12px;background:#f1f5f9;border-radius:6px;">
+                            <p style="font-size:13px;font-weight:600;margin-bottom:4px;">
+                                Likelihood Score: <span id="likelihoodScoreDisplay" class="score-display score-display-low">0</span> / 7
+                            </p>
+                            <p style="font-size:13px;">
+                                Rating: <span id="likelihoodRatingDisplay" class="risk-badge risk-badge-low">Low</span>
+                            </p>
+                            <div style="font-size:12px;color:#64748b;">
+                                <span>0-2 Yes = Low</span> • 
+                                <span>3-4 Yes = Medium</span> • 
+                                <span>5-6 Yes = High</span> • 
+                                <span>7+ Yes = Very High</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5.3 Existing Controls -->
+                    <div class="sub-section-box">
+                        <h5>5.3 Existing Controls</h5>
+                        <p class="subtext-sm">Select all controls that are currently in place.</p>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" id="controlEncryption" /> Encryption</label>
+                            <label><input type="checkbox" id="controlAccess" /> Access controls</label>
+                            <label><input type="checkbox" id="controlMFA" /> MFA</label>
+                            <label><input type="checkbox" id="controlLogging" /> Logging & monitoring</label>
+                            <label><input type="checkbox" id="controlMinimization" /> Data minimization</label>
+                            <label><input type="checkbox" id="controlRetention" /> Retention controls</label>
+                            <label><input type="checkbox" id="controlVendor" /> Vendor due diligence</label>
+                            <label><input type="checkbox" id="controlTraining" /> Staff training</label>
+                            <label><input type="checkbox" id="controlIncident" /> Incident response plan</label>
+                            <label><input type="checkbox" id="controlOther" /> Other</label>
+                        </div>
+                        <div class="form-group" style="margin-top:12px;">
+                            <label>Additional Controls Description</label>
+                            <textarea class="form-control" id="controlDescription" placeholder="Describe additional controls..."></textarea>
+                        </div>
+                        <div style="margin-top:8px;padding:8px 12px;background:#f1f5f9;border-radius:6px;font-size:13px;">
+                            💡 <strong>Controls Implemented:</strong> <span id="controlCountDisplay">0</span> / 10
+                        </div>
+                    </div>
+
+                    <!-- 5.4 Residual Risk -->
+                    <div class="sub-section-box">
+                        <h5>5.4 Residual Risk</h5>
+                        <p class="subtext-sm">Based on the impact and likelihood assessments, the residual risk is automatically calculated.</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div style="padding:12px;background:#f8fafc;border-radius:6px;text-align:center;">
+                                <div style="font-size:12px;color:#64748b;">Impact Rating</div>
+                                <div style="font-size:24px;font-weight:700;" id="residualImpactDisplay">Medium</div>
+                            </div>
+                            <div style="padding:12px;background:#f8fafc;border-radius:6px;text-align:center;">
+                                <div style="font-size:12px;color:#64748b;">Likelihood Rating</div>
+                                <div style="font-size:24px;font-weight:700;" id="residualLikelihoodDisplay">Low</div>
+                            </div>
+                        </div>
+                        <div class="residual-risk-box" id="residualRiskDisplay">
+                            <div class="risk-label">Residual Risk Level</div>
+                            <div class="risk-level" id="residualRiskLevel">🟡 Medium Risk</div>
+                        </div>
+                        <details style="margin-top:12px;">
+                            <summary style="cursor:pointer;font-weight:600;font-size:13px;color:#475569;">📊 View Risk Matrix Reference</summary>
+                            <table class="risk-matrix-table">
+                                <thead><tr><th>Impact / Likelihood</th><th>Remote</th><th>Unlikely</th><th>Possible</th><th>Likely</th><th>Certain</th></tr></thead>
+                                <tbody>
+                                    <tr><td><strong>Severe</strong></td><td class="cell-critical">5</td><td class="cell-critical">10</td><td class="cell-critical">15</td><td class="cell-critical">20</td><td class="cell-critical">25</td></tr>
+                                    <tr><td><strong>Major</strong></td><td class="cell-high">4</td><td class="cell-medium">8</td><td class="cell-medium">12</td><td class="cell-critical">16</td><td class="cell-critical">20</td></tr>
+                                    <tr><td><strong>Significant</strong></td><td class="cell-low">3</td><td class="cell-low">6</td><td class="cell-medium">9</td><td class="cell-medium">12</td><td class="cell-high">15</td></tr>
+                                    <tr><td><strong>Minor</strong></td><td class="cell-low">2</td><td class="cell-low">4</td><td class="cell-medium">6</td><td class="cell-medium">8</td><td class="cell-medium">10</td></tr>
+                                    <tr><td><strong>Insignificant</strong></td><td class="cell-low">1</td><td class="cell-low">2</td><td class="cell-low">3</td><td class="cell-low">4</td><td class="cell-medium">5</td></tr>
+                                </tbody>
+                            </table>
+                            <div style="margin-top:6px;display:flex;gap:12px;font-size:12px;flex-wrap:wrap;">
+                                <span><span style="display:inline-block;width:14px;height:14px;background:#c6f6d5;border-radius:3px;"></span> Low (1-4)</span>
+                                <span><span style="display:inline-block;width:14px;height:14px;background:#fefcbf;border-radius:3px;"></span> Medium (5-10)</span>
+                                <span><span style="display:inline-block;width:14px;height:14px;background:#fed7d7;border-radius:3px;"></span> High (11-25)</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- 5.5 Mitigation Plan -->
+                    <div class="sub-section-box">
+                        <h5>5.5 Mitigation Plan</h5>
+                        <p class="subtext-sm">Document the actions needed to mitigate identified risks.</p>
+                        <div class="form-group">
+                            <label>Recommended Action</label>
+                            <textarea class="form-control" id="mitigationAction" placeholder="Describe the recommended mitigation action..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Responsible Owner</label>
+                                <input class="form-control" id="mitigationOwner" placeholder="e.g., John Doe" />
+                            </div>
+                            <div class="form-group">
+                                <label>Due Date</label>
+                                <input class="form-control" id="mitigationDueDate" type="date" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control" id="mitigationStatus">
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Notes</label>
+                            <textarea class="form-control" id="mitigationNotes" placeholder="Any additional details..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 6: PRIVACY-BY-DESIGN CHECKLIST -->
+                <div class="section-box">
+                    <h4>🛡️ Step 6: Privacy-by-Design Checklist</h4>
+                    <p class="subtext">Ensure privacy is embedded throughout the processing lifecycle.</p>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" id="pbdMinimization" /> Data minimization applied?</label>
+                        <label><input type="checkbox" id="pbdRetention" /> Retention controls implemented?</label>
+                        <label><input type="checkbox" id="pbdEncryption" /> Encryption used at rest and in transit?</label>
+                        <label><input type="checkbox" id="pbdMFA" /> Multi-factor authentication enabled?</label>
+                        <label><input type="checkbox" id="pbdAccess" /> Access controls defined and enforced?</label>
+                        <label><input type="checkbox" id="pbdAudit" /> Audit logging enabled?</label>
+                        <label><input type="checkbox" id="pbdConsent" /> Consent management implemented?</label>
+                        <label><input type="checkbox" id="pbdAnonymization" /> Anonymization/pseudonymization used?</label>
+                        <label><input type="checkbox" id="pbdBreach" /> Breach notification procedures in place?</label>
+                        <label><input type="checkbox" id="pbdTraining" /> Staff privacy training completed?</label>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Additional Privacy-by-Design Notes</label>
+                        <textarea class="form-control" id="dpiaPbdNotes" placeholder="Document additional considerations..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('dpiaModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save DPIA</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── VENDOR MODAL ─── -->
+    <div class="modal-overlay" id="vendorModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Vendor Assessment</h2>
+                <button class="modal-close" onclick="closeModal('vendorModal')">&times;</button>
+            </div>
+            <form id="vendorForm">
+                <input type="hidden" id="vendorEditId" />
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="vendorProjectId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Vendor Name <span class="required">*</span></label>
+                    <input class="form-control" id="vendorName" placeholder="e.g., AWS, Microsoft" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hosting Location</label>
+                        <input class="form-control" id="vendorLocation" placeholder="e.g., Kenya, EU, USA" />
+                    </div>
+                    <div class="form-group">
+                        <label>Risk Rating</label>
+                        <select class="form-control" id="vendorRisk">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Security Certifications (comma separated)</label>
+                    <input class="form-control" id="vendorCerts" placeholder="e.g., ISO 27001, SOC2" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><input type="checkbox" id="vendorDPA" /> DPA Signed?</label>
+                    </div>
+                    <div class="form-group">
+                        <label>DPA Date</label>
+                        <input class="form-control" id="vendorDPADate" type="date" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Sub-Processors (comma separated)</label>
+                    <input class="form-control" id="vendorSubProcessors" placeholder="e.g., Google Cloud, Akamai" />
+                </div>
+                <div class="form-group">
+                    <label>Assessment Notes</label>
+                    <textarea class="form-control" id="vendorNotes" placeholder="Detailed assessment findings..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Assessment Date</label>
+                        <input class="form-control" id="vendorAssessmentDate" type="date" />
+                    </div>
+                    <div class="form-group">
+                        <label>Next Assessment Date</label>
+                        <input class="form-control" id="vendorNextDate" type="date" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('vendorModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Vendor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── APPLICATION MODAL ─── -->
+    <div class="modal-overlay" id="appModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Application</h2>
+                <button class="modal-close" onclick="closeModal('appModal')">&times;</button>
+            </div>
+            <form id="appForm">
+                <input type="hidden" id="appEditId" />
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="appProjectId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Application Name <span class="required">*</span></label>
+                    <input class="form-control" id="appName" placeholder="e.g., SAP, Salesforce" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Application Owner</label>
+                        <input class="form-control" id="appOwner" placeholder="e.g., John Doe" />
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-control" id="appDept">
+                            <option value="">Select...</option>
+                            <option>Finance</option>
+                            <option>HR</option>
+                            <option>IT</option>
+                            <option>Marketing</option>
+                            <option>Executive</option>
+                            <option>Operations</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" id="appDescription" placeholder="Describe the application's purpose..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Classification</label>
+                        <select class="form-control" id="appClassification">
+                            <option value="Personal">Personal</option>
+                            <option value="Sensitive">Sensitive</option>
+                            <option value="Confidential">Confidential</option>
+                            <option value="Public">Public</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hosting Environment</label>
+                        <select class="form-control" id="appHosting">
+                            <option value="Cloud">Cloud</option>
+                            <option value="On-premise">On-premise</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cloud Provider</label>
+                    <input class="form-control" id="appCloud" placeholder="e.g., AWS, Azure, GCP" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Processed (comma separated)</label>
+                        <input class="form-control" id="appData" placeholder="e.g., Personal Data, Financial Data" />
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Users</label>
+                        <input class="form-control" id="appUsers" type="number" placeholder="e.g., 500" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Third-Party Integrations (comma separated)</label>
+                    <input class="form-control" id="appIntegrations" placeholder="e.g., Salesforce, Slack" />
+                </div>
+                <div class="form-group">
+                    <label>Security Controls (comma separated)</label>
+                    <input class="form-control" id="appControls" placeholder="e.g., MFA, Encryption" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Last Assessment Date</label>
+                        <input class="form-control" id="appLastDate" type="date" />
+                    </div>
+                    <div class="form-group">
+                        <label>Next Assessment Date</label>
+                        <input class="form-control" id="appNextDate" type="date" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('appModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── THIRD PARTY MODAL ─── -->
+    <div class="modal-overlay" id="thirdPartyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Third Party</h2>
+                <button class="modal-close" onclick="closeModal('thirdPartyModal')">&times;</button>
+            </div>
+            <form id="thirdPartyForm">
+                <input type="hidden" id="tpEditId" />
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="tpProjectId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Third Party Name <span class="required">*</span></label>
+                    <input class="form-control" id="tpName" placeholder="e.g., AWS, Microsoft" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Service Type</label>
+                        <input class="form-control" id="tpService" placeholder="e.g., Cloud Services" />
+                    </div>
+                    <div class="form-group">
+                        <label>Processing Role</label>
+                        <select class="form-control" id="tpRole">
+                            <option value="Controller">Controller</option>
+                            <option value="Processor" selected>Processor</option>
+                            <option value="Joint Controller">Joint Controller</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contact Person</label>
+                        <input class="form-control" id="tpContact" placeholder="e.g., Jane Smith" />
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Email</label>
+                        <input class="form-control" id="tpEmail" type="email" placeholder="contact@vendor.com" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input class="form-control" id="tpPhone" placeholder="+254 701234567" />
+                    </div>
+                    <div class="form-group">
+                        <label>Jurisdiction</label>
+                        <input class="form-control" id="tpJurisdiction" placeholder="e.g., Kenya, EU" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Applicable Law</label>
+                        <select class="form-control" id="tpLaw">
+                            <option value="Kenya Data Protection Act 2019">Kenya Data Protection Act 2019</option>
+                            <option value="GDPR">GDPR</option>
+                            <option value="CCPA">CCPA</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Risk Rating</label>
+                        <select class="form-control" id="tpRisk">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Data Shared (comma separated)</label>
+                    <input class="form-control" id="tpData" placeholder="e.g., Names, Emails" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><input type="checkbox" id="tpDPA" /> DPA Signed?</label>
+                    </div>
+                    <div class="form-group">
+                        <label>DPA Date</label>
+                        <input class="form-control" id="tpDPADate" type="date" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Security Certifications (comma separated)</label>
+                    <input class="form-control" id="tpCerts" placeholder="e.g., ISO 27001, SOC2" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('thirdPartyModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Third Party</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── CONTROL MODAL ─── -->
+    <div class="modal-overlay" id="controlModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Security Control</h2>
+                <button class="modal-close" onclick="closeModal('controlModal')">&times;</button>
+            </div>
+            <form id="controlForm">
+                <input type="hidden" id="controlEditId" />
+                <div class="form-group">
+                    <label>Control Name <span class="required">*</span></label>
+                    <input class="form-control" id="controlName" placeholder="e.g., Encryption at Rest" required />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" id="controlDesc" placeholder="Describe the control..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Control Type</label>
+                        <select class="form-control" id="controlType">
+                            <option value="Technical">Technical</option>
+                            <option value="Organizational">Organizational</option>
+                            <option value="Physical">Physical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Implementation Status</label>
+                        <select class="form-control" id="controlStatus">
+                            <option value="not_implemented">Not Implemented</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="implemented">Implemented</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ISO 27001 Mapping (comma separated)</label>
+                    <input class="form-control" id="controlISO" placeholder="e.g., A.8.2.1, A.9.1.1" />
+                </div>
+                <div class="form-group">
+                    <label>NIST CSF Mapping (comma separated)</label>
+                    <input class="form-control" id="controlNIST" placeholder="e.g., PR.AC-1, PR.DS-1" />
+                </div>
+                <div class="form-group">
+                    <label>Kenya DPA Mapping (comma separated)</label>
+                    <input class="form-control" id="controlKenya" placeholder="e.g., Section 23, Section 24" />
+                </div>
+                <div class="form-group">
+                    <label>GDPR Mapping (comma separated)</label>
+                    <input class="form-control" id="controlGDPR" placeholder="e.g., Art. 32, Art. 33" />
+                </div>
+                <div class="form-group">
+                    <label>Owner</label>
+                    <input class="form-control" id="controlOwner" placeholder="e.g., Security Team" />
+                </div>
+                <div class="form-group">
+                    <label>Evidence URL</label>
+                    <input class="form-control" id="controlEvidence" placeholder="https://example.com/evidence.pdf" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('controlModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Control</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── EVIDENCE MODAL ─── -->
+    <div class="modal-overlay" id="evidenceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Upload Evidence</h2>
+                <button class="modal-close" onclick="closeModal('evidenceModal')">&times;</button>
+            </div>
+            <form id="evidenceForm">
+                <input type="hidden" id="evidenceEditId" />
+                <div class="form-group">
+                    <label>Project <span class="required">*</span></label>
+                    <select class="form-control" id="evidenceProjectId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Title <span class="required">*</span></label>
+                    <input class="form-control" id="evidenceTitle" placeholder="e.g., Data Flow Diagram" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Document Type</label>
+                        <select class="form-control" id="evidenceType">
+                            <option value="Data Flow Diagram">Data Flow Diagram</option>
+                            <option value="Architecture Diagram">Architecture Diagram</option>
+                            <option value="Contract">Contract</option>
+                            <option value="DPA">DPA</option>
+                            <option value="Security Assessment">Security Assessment</option>
+                            <option value="Test Report">Test Report</option>
+                            <option value="Policy">Policy</option>
+                            <option value="Procedure">Procedure</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Version</label>
+                        <input class="form-control" id="evidenceVersion" placeholder="1.0" value="1.0" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" id="evidenceDesc" placeholder="Describe the evidence..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>File URL <span class="required">*</span></label>
+                    <input class="form-control" id="evidenceFile" placeholder="https://example.com/document.pdf" required />
+                </div>
+                <div class="form-group">
+                    <label>Uploaded By</label>
+                    <input class="form-control" id="evidenceUploader" placeholder="e.g., John Doe" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('evidenceModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload Evidence</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── DSAR MODAL ─── -->
+    <div class="modal-overlay" id="dsarModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="dsarModalTitle">New DSAR</h2>
+                <button class="modal-close" onclick="closeModal('dsarModal')">&times;</button>
+            </div>
+            <form id="dsarForm">
+                <input type="hidden" id="dsarEditId" />
+                <div class="form-group">
+                    <label>Project (optional)</label>
+                    <select class="form-control" id="dsarProjectId">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input class="form-control" id="dsarName" placeholder="John Doe" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Email <span class="required">*</span></label>
+                        <input class="form-control" id="dsarEmail" type="email" placeholder="john@example.com" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input class="form-control" id="dsarPhone" placeholder="+254 701234567" />
+                </div>
+                <div class="form-group">
+                    <label>Request Type <span class="required">*</span></label>
+                    <select class="form-control" id="dsarType" required>
+                        <option value="Access">Access</option>
+                        <option value="Deletion">Deletion / Erasure</option>
+                        <option value="Correction">Correction</option>
+                        <option value="Portability">Portability</option>
+                        <option value="Objection">Objection</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Message <span class="required">*</span></label>
+                    <textarea class="form-control" id="dsarMessage" placeholder="Describe the request in detail..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="dsarConsent" /> I have read and agree to the data protection notice</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('dsarModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit DSAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── DSAR RESPONSE MODAL ─── -->
+    <div class="modal-overlay" id="dsarResponseModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Respond to DSAR</h2>
+                <button class="modal-close" onclick="closeModal('dsarResponseModal')">&times;</button>
+            </div>
+            <form id="dsarResponseForm">
+                <input type="hidden" id="dsarResponseId" />
+                <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control" id="dsarResponseStatus">
+                        <option value="draft">Draft</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Response</label>
+                    <textarea class="form-control" id="dsarResponseText" rows="6" placeholder="Enter your response to the data subject..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('dsarResponseModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update DSAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--                        JAVASCRIPT                              -->
+    <!-- ============================================================ -->
+    <script>
+        const API = 'http://localhost:8000/api';
+
+        // ─── HELPERS ────────────────────────────────────────────────
+        function toast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            el.innerHTML = message;
+            container.appendChild(el);
+            setTimeout(() => { el.remove(); }, 5000);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function formatDate(d) {
+            if (!d) return '-';
+            return new Date(d).toLocaleDateString('en-KE', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function formatDateTime(d) {
+            if (!d) return '-';
+            return new Date(d).toLocaleString('en-KE', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit',
+                minute: '2-digit' });
+        }
+
+        function getVal(id) { return document.getElementById(id).value; }
+
+        function setVal(id, val) { document.getElementById(id).value = val || ''; }
+
+        function getCheck(id) { return document.getElementById(id).checked; }
+
+        function setCheck(id, val) { document.getElementById(id).checked = !!val; }
+
+        function splitComma(val) { return val.split(',').map(s => s.trim()).filter(Boolean); }
+
+        function joinComma(arr) { return Array.isArray(arr) ? arr.join(', ') : ''; }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(`tab-${tab}`);
+            if (target) target.classList.add('active');
+
+            const titles = {
+                dashboard: 'Dashboard',
+                projects: 'Projects',
+                mapping: 'Data Mapping',
+                ropa: 'RoPA Register',
+                dpia: 'DPIA',
+                vendors: 'Vendors',
+                applications: 'Applications',
+                thirdparties: 'Third Parties',
+                controls: 'Security Controls',
+                evidence: 'Evidence',
+                dsar: 'DSAR Management'
+            };
+            document.getElementById('pageTitle').textContent = titles[tab] || 'Dashboard';
+
+            const loaders = {
+                dashboard: loadDashboard,
+                projects: loadProjects,
+                mapping: loadMappings,
+                ropa: loadRopa,
+                dpia: loadDpia,
+                vendors: loadVendors,
+                applications: loadApps,
+                thirdparties: loadThirdParties,
+                controls: loadControls,
+                evidence: loadEvidence,
+                dsar: loadDsar
+            };
+            if (loaders[tab]) loaders[tab]();
+        }
+
+        function refreshAll() {
+            loadDashboard();
+            const active = document.querySelector('.sidebar-nav button.active');
+            if (active) switchTab(active.dataset.tab);
+            toast('🔄 Refreshed', 'info');
+        }
+
+        // ─── SIDEBAR ────────────────────────────────────────────────
+        document.querySelectorAll('.sidebar-nav button[data-tab]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-nav button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                switchTab(this.dataset.tab);
+                document.getElementById('sidebar').classList.remove('open');
+            });
+        });
+
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // ─── POPULATE DROPDOWNS ─────────────────────────────────────
+        async function populateProjects(selectId, placeholder = 'Select a project...') {
+            const select = document.getElementById(selectId);
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+            try {
+                const res = await fetch(`${API}/projects`);
+                const data = await res.json();
+                data.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.name;
+                    select.appendChild(opt);
+                });
+            } catch (e) {}
+        }
+
+        async function populateRopa(selectId, projectId) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">None</option>';
+            if (!projectId) return;
+            try {
+                const res = await fetch(`${API}/ropa/${projectId}`);
+                const data = await res.json();
+                data.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r.id;
+                    opt.textContent = r.processing_activity;
+                    select.appendChild(opt);
+                });
+            } catch (e) {}
+        }
+
+        // ─── RISK EVALUATION HELPERS ───────────────────────────────
+        function getRiskBadgeClass(level) {
+            const map = {
+                'Low': 'risk-badge-low',
+                'Medium': 'risk-badge-medium',
+                'High': 'risk-badge-high',
+                'Very High': 'risk-badge-critical',
+                'Critical': 'risk-badge-critical'
+            };
+            return map[level] || 'risk-badge-low';
+        }
+
+        function getRiskEmoji(level) {
+            const map = {
+                'Low': '🟢',
+                'Medium': '🟡',
+                'High': '🟠',
+                'Very High': '🔴',
+                'Critical': '🔴'
+            };
+            return map[level] || '🟢';
+        }
+
+        function calculateLikelihood() {
+            const checkboxes = [
+                'likelihoodSensitive',
+                'likelihoodLargeVolume',
+                'likelihoodAutomated',
+                'likelihoodThirdParty',
+                'likelihoodInternational',
+                'likelihoodChildren',
+                'likelihoodNewTech'
+            ];
+            let count = 0;
+            checkboxes.forEach(id => {
+                if (document.getElementById(id).checked) count++;
+            });
+
+            const scoreDisplay = document.getElementById('likelihoodScoreDisplay');
+            scoreDisplay.textContent = count;
+
+            let rating = 'Low';
+            if (count >= 7) rating = 'Very High';
+            else if (count >= 5) rating = 'High';
+            else if (count >= 3) rating = 'Medium';
+            else rating = 'Low';
+
+            const ratingDisplay = document.getElementById('likelihoodRatingDisplay');
+            ratingDisplay.textContent = rating;
+            ratingDisplay.className = `risk-badge ${getRiskBadgeClass(rating)}`;
+
+            return rating;
+        }
+
+        function calculateControls() {
+            const controls = [
+                'controlEncryption',
+                'controlAccess',
+                'controlMFA',
+                'controlLogging',
+                'controlMinimization',
+                'controlRetention',
+                'controlVendor',
+                'controlTraining',
+                'controlIncident',
+                'controlOther'
+            ];
+            let count = 0;
+            controls.forEach(id => {
+                if (document.getElementById(id).checked) count++;
+            });
+            document.getElementById('controlCountDisplay').textContent = count;
+            return count;
+        }
+
+        function calculateResidualRisk() {
+            const impact = document.getElementById('impactRating').value;
+            const likelihood = document.getElementById('likelihoodRatingDisplay').textContent;
+
+            document.getElementById('residualImpactDisplay').textContent = impact;
+            document.getElementById('residualLikelihoodDisplay').textContent = likelihood;
+
+            const impactMap = { 'Low': 1, 'Medium': 2, 'High': 3, 'Very High': 4 };
+            const likelihoodMap = { 'Low': 1, 'Medium': 2, 'High': 3, 'Very High': 4 };
+
+            const impactScore = impactMap[impact] || 1;
+            const likelihoodScore = likelihoodMap[likelihood] || 1;
+            const totalScore = impactScore * likelihoodScore;
+
+            let riskLevel;
+            if (totalScore >= 12) riskLevel = 'Critical';
+            else if (totalScore >= 8) riskLevel = 'High';
+            else if (totalScore >= 4) riskLevel = 'Medium';
+            else riskLevel = 'Low';
+
+            const display = document.getElementById('residualRiskLevel');
+            const emoji = getRiskEmoji(riskLevel);
+            display.textContent = `${emoji} ${riskLevel} Risk`;
+            display.style.color = riskLevel === 'Critical' ? '#9b2c2c' :
+                riskLevel === 'High' ? '#f56565' :
+                riskLevel === 'Medium' ? '#ed8936' : '#48bb78';
+
+            const box = document.getElementById('residualRiskDisplay');
+            box.style.borderColor = riskLevel === 'Critical' ? '#9b2c2c' :
+                riskLevel === 'High' ? '#f56565' :
+                riskLevel === 'Medium' ? '#ed8936' : '#48bb78';
+            box.style.background = riskLevel === 'Critical' ? '#fff5f5' :
+                riskLevel === 'High' ? '#fffbeb' :
+                riskLevel === 'Medium' ? '#fffbeb' : '#f0fff4';
+
+            return riskLevel;
+        }
+
+        // ─── RISK LIST MANAGEMENT ──────────────────────────────────
+        let riskList = [];
+
+        function renderRiskList() {
+            const container = document.getElementById('riskListContainer');
+            if (riskList.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="font-size:13px;">No risks added yet.</p>';
+                return;
+            }
+            let html = `<div class="table-wrap"><table><thead><tr>
+                <th>#</th><th>Risk Name</th><th>Category</th><th>Likelihood</th><th>Impact</th><th>Score</th><th>Action</th>
+            </tr></thead><tbody>`;
+            riskList.forEach((r, i) => {
+                const score = r.likelihoodScore * r.impactScore;
+                const scoreColor = score >= 16 ? 'risk-critical' : score >= 9 ? 'risk-high' : score >= 4 ?
+                    'risk-medium' : 'risk-low';
+                html += `<tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${r.name}</strong></td>
+                    <td>${r.category}</td>
+                    <td>${r.likelihood}</td>
+                    <td>${r.impact}</td>
+                    <td class="${scoreColor} fw-600">${score}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="removeRisk(${i})">🗑️</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            document.getElementById('dpiaRisksData').value = JSON.stringify(riskList);
+        }
+
+        function addRisk() {
+            const name = document.getElementById('riskName').value.trim();
+            const description = document.getElementById('riskDescription').value.trim();
+            const category = document.getElementById('riskCategory').value;
+            const owner = document.getElementById('riskOwner').value.trim();
+            const source = document.getElementById('riskSource').value.trim();
+            const vulnerability = document.getElementById('riskVulnerability').value.trim();
+            const likelihood = document.getElementById('riskLikelihoodCriteria').value;
+            const impact = document.getElementById('riskImpactCriteria').value;
+            const triad = document.getElementById('riskSecurityTriad').value;
+
+            if (!name) {
+                toast('Please enter a risk name', 'error');
+                return;
+            }
+
+            const likelihoodMap = { 'Remote': 1, 'Unlikely': 2, 'Possible': 3, 'Likely': 4, 'Certain': 5 };
+            const impactMap = { 'Insignificant': 1, 'Minor': 2, 'Significant': 3, 'Major': 4, 'Severe': 5 };
+
+            riskList.push({
+                name: name,
+                description: description,
+                category: category,
+                owner: owner,
+                source: source,
+                vulnerability: vulnerability,
+                likelihood: likelihood,
+                impact: impact,
+                likelihoodScore: likelihoodMap[likelihood] || 1,
+                impactScore: impactMap[impact] || 1,
+                triad: triad
+            });
+
+            renderRiskList();
+
+            document.getElementById('riskName').value = '';
+            document.getElementById('riskDescription').value = '';
+            document.getElementById('riskOwner').value = '';
+            document.getElementById('riskSource').value = '';
+            document.getElementById('riskVulnerability').value = '';
+
+            toast('Risk added successfully', 'success');
+        }
+
+        function removeRisk(index) {
+            riskList.splice(index, 1);
+            renderRiskList();
+            toast('Risk removed', 'info');
+        }
+
+        // ─── REPORT FUNCTIONS ──────────────────────────────────────
+        async function generateReport(type) {
+            let url = '';
+            let title = '';
+
+            switch (type) {
+                case 'ropa':
+                    const projectId = prompt('Enter Project ID to export RoPA:');
+                    if (!projectId) return;
+                    url = `${API}/reports/ropa/${projectId}?format=html`;
+                    title = 'RoPA Report';
+                    break;
+                case 'dpia':
+                    const dpiaId = prompt('Enter DPIA ID to export:');
+                    if (!dpiaId) return;
+                    url = `${API}/reports/dpia/${dpiaId}?format=html`;
+                    title = 'DPIA Report';
+                    break;
+                case 'compliance':
+                    url = `${API}/reports/compliance?format=html`;
+                    title = 'Compliance Report';
+                    break;
+                case 'risks':
+                    url = `${API}/reports/risks?format=html`;
+                    title = 'Risk Register';
+                    break;
+                default:
+                    toast('Invalid report type', 'error');
+                    return;
+            }
+
+            try {
+                toast('Generating report...', 'info');
+                window.open(url, '_blank');
+                toast('Report opened in new tab. Use Print > Save as PDF to download.', 'success');
+            } catch (e) {
+                toast('Error generating report: ' + e.message, 'error');
+            }
+        }
+
+        // ─── EXPORT TO CSV ──────────────────────────────────────────
+        function exportTableToCSV(tableId, filename = 'export.csv') {
+            const tableContainer = document.getElementById(tableId);
+            if (!tableContainer) {
+                toast('Table not found', 'error');
+                return;
+            }
+
+            const table = tableContainer.querySelector('table');
+            if (!table) {
+                toast('No table data to export', 'error');
+                return;
+            }
+
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            for (const row of rows) {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = [];
+                for (const cell of cells) {
+                    let text = cell.textContent.trim();
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text.replace(/"/g, '""')}"`;
+                    }
+                    rowData.push(text);
+                }
+                csv.push(rowData.join(','));
+            }
+
+            if (csv.length === 0) {
+                toast('No data to export', 'error');
+                return;
+            }
+
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            toast('CSV exported successfully!', 'success');
+        }
+
+        // ─── DSAR COPY LINK ─────────────────────────────────────────
+        function copyDsarLink() {
+            const link = document.getElementById('dsarPublicUrl').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                toast('DSAR link copied to clipboard!', 'success');
+            }).catch(() => {
+                toast('Copy manually: ' + link, 'info');
+            });
+        }
+
+        // ─── DASHBOARD ──────────────────────────────────────────────
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API}/stats`);
+                const data = await res.json();
+                document.getElementById('statProjects').textContent = data.total_projects || 0;
+                document.getElementById('statRopa').textContent = data.total_ropas || 0;
+                document.getElementById('statDpia').textContent = data.total_dpias || 0;
+                document.getElementById('statDpiaRate').textContent = (data.dpia_compliance_rate || 0) + '%';
+                document.getElementById('statVendors').textContent = data.total_vendors || 0;
+                document.getElementById('statHighRisk').textContent = data.high_risk_vendors || 0;
+                document.getElementById('statDsar').textContent = data.total_dsar || 0;
+                document.getElementById('statPendingDsar').textContent = data.pending_dsar || 0;
+
+                document.getElementById('projectBadge').textContent = data.total_projects || 0;
+                document.getElementById('ropaBadge').textContent = data.total_ropas || 0;
+                document.getElementById('dpiaBadge').textContent = data.total_dpias || 0;
+                document.getElementById('dsarBadge').textContent = data.total_dsar || 0;
+
+                const projRes = await fetch(`${API}/projects`);
+                const projects = await projRes.json();
+                const recent = projects.slice(0, 5);
+                let html = '';
+                if (recent.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">📁</div><h4>No projects</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Project</th><th>Owner</th><th>Stage</th><th>Status</th></tr></thead><tbody>`;
+                    recent.forEach(p => {
+                        const badge = p.status === 'approved' ? 'badge-success' :
+                            p.status === 'under_review' ? 'badge-warning' :
+                            p.status === 'archived' ? 'badge-secondary' : 'badge-info';
+                        html += `<tr>
+                            <td><strong>${p.name}</strong></td>
+                            <td>${p.owner || '-'}</td>
+                            <td>${p.development_stage || '-'}</td>
+                            <td><span class="badge ${badge}">${p.status}</span></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('recentProjects').innerHTML = html;
+            } catch (e) {
+                document.getElementById('recentProjects').innerHTML =
+                    '<p class="text-muted">⚠️ Error loading data. Is the backend running?</p>';
+            }
+        }
+
+        // ─── PROJECTS ───────────────────────────────────────────────
+        async function loadProjects() {
+            try {
+                const res = await fetch(`${API}/projects`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">📁</div><h4>No projects</h4><p>Click "New Project" to get started.</p></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Owner</th><th>Department</th><th>Stage</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+                    data.forEach(p => {
+                        const badge = p.status === 'approved' ? 'badge-success' :
+                            p.status === 'under_review' ? 'badge-warning' :
+                            p.status === 'archived' ? 'badge-secondary' : 'badge-info';
+                        html += `<tr>
+                            <td><strong>${p.name}</strong></td>
+                            <td>${p.owner || '-'}</td>
+                            <td>${p.department || '-'}</td>
+                            <td>${p.development_stage || '-'}</td>
+                            <td><span class="badge ${badge}">${p.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editProject(${p.id})">✏️</button>
+                                <button class="btn btn-sm btn-warning" onclick="updateProjectStatus(${p.id},'under_review')">📋 Review</button>
+                                <button class="btn btn-sm btn-success" onclick="updateProjectStatus(${p.id},'approved')">✅ Approve</button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('projectTable').innerHTML = html;
+                document.getElementById('projectBadge').textContent = data.length;
+            } catch (e) {
+                document.getElementById('projectTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        function openProjectModal(data) {
+            document.getElementById('projectEditId').value = data?.id || '';
+            document.getElementById('projectModalTitle').textContent = data ? 'Edit Project' : 'New Project';
+            setVal('projectName', data?.name || '');
+            setVal('projectOwner', data?.owner || '');
+            setVal('projectDept', data?.department || '');
+            setVal('projectVendor', data?.vendor || '');
+            setVal('projectStage', data?.development_stage || 'Requirements');
+            setVal('projectGoLive', data?.go_live_date ? data.go_live_date.split('T')[0] : '');
+            openModal('projectModal');
+        }
+
+        async function editProject(id) {
+            try {
+                const res = await fetch(`${API}/projects/${id}`);
+                const data = await res.json();
+                openProjectModal(data);
+            } catch (e) { toast('Error loading project', 'error'); }
+        }
+
+        async function updateProjectStatus(id, status) {
+            try {
+                await fetch(`${API}/projects/${id}/status?status=${status}`, { method: 'PUT' });
+                toast(`Project status: ${status}`, 'success');
+                loadProjects();
+                loadDashboard();
+            } catch (e) { toast('Error', 'error'); }
+        }
+
+        document.getElementById('projectForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('projectEditId');
+            const data = {
+                name: getVal('projectName'),
+                owner: getVal('projectOwner'),
+                department: getVal('projectDept'),
+                vendor: getVal('projectVendor'),
+                development_stage: getVal('projectStage'),
+                go_live_date: getVal('projectGoLive') || null,
+                created_by: 'System'
+            };
+            try {
+                const url = id ? `${API}/projects/${id}` : `${API}/projects`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Project updated' : 'Project created', 'success');
+                    closeModal('projectModal');
+                    loadProjects();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── DATA MAPPING ───────────────────────────────────────────
+        async function loadMappings() {
+            try {
+                const res = await fetch(`${API}/data-mapping/1`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">🗺️</div><h4>No data mappings</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Personal Data</th><th>Sensitive Data</th><th>Subjects</th><th>Storage</th><th>Recipients</th></tr></thead><tbody>`;
+                    data.forEach(m => {
+                        html += `<tr>
+                            <td><strong>${m.personal_data_category || '-'}</strong></td>
+                            <td>${m.sensitive_data_category || '-'}</td>
+                            <td>${m.data_subject_category || '-'}</td>
+                            <td>${m.storage_location || '-'}</td>
+                            <td>${m.recipients?.join(', ') || '-'}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('mappingTable').innerHTML = html;
+            } catch (e) {
+                document.getElementById('mappingTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openMappingModal(data) {
+            await populateProjects('mappingProjectId');
+            document.getElementById('mappingEditId').value = data?.id || '';
+            setVal('mappingProjectId', data?.project_id || '');
+            setVal('mappingPersonal', data?.personal_data_category || '');
+            setVal('mappingSensitive', data?.sensitive_data_category || '');
+            setVal('mappingSubject', data?.data_subject_category || '');
+            setVal('mappingSource', data?.source_of_data || '');
+            setVal('mappingStorage', data?.storage_location || '');
+            setVal('mappingRecipients', joinComma(data?.recipients));
+            setVal('mappingThirdParties', joinComma(data?.third_parties));
+            setVal('mappingTransfers', data?.cross_border_transfers?.map(t => `${t.country}:${t.legal_basis}`).join(', ') ||
+                '');
+            setVal('mappingFlowDiagram', data?.data_flow_diagram || '');
+            setVal('mappingVisualMap', data?.visual_data_map || '');
+            openModal('mappingModal');
+        }
+
+        document.getElementById('mappingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('mappingEditId');
+            const transfers = splitComma(getVal('mappingTransfers')).map(s => {
+                const parts = s.split(':');
+                return { country: parts[0] || '', legal_basis: parts[1] || '' };
+            });
+            const data = {
+                project_id: parseInt(getVal('mappingProjectId')),
+                personal_data_category: getVal('mappingPersonal'),
+                sensitive_data_category: getVal('mappingSensitive'),
+                data_subject_category: getVal('mappingSubject'),
+                source_of_data: getVal('mappingSource'),
+                storage_location: getVal('mappingStorage'),
+                recipients: splitComma(getVal('mappingRecipients')),
+                third_parties: splitComma(getVal('mappingThirdParties')),
+                cross_border_transfers: transfers,
+                data_flow_diagram: getVal('mappingFlowDiagram'),
+                visual_data_map: getVal('mappingVisualMap')
+            };
+            try {
+                const url = id ? `${API}/data-mapping/${id}` : `${API}/data-mapping`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Mapping updated' : 'Mapping created', 'success');
+                    closeModal('mappingModal');
+                    loadMappings();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── ROPA ────────────────────────────────────────────────────
+        async function loadRopa() {
+            try {
+                const res = await fetch(`${API}/ropa`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">📋</div><h4>No RoPA records</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Activity</th><th>Purpose</th><th>Lawful Basis</th><th>Status</th><th>Version</th><th>Actions</th></tr></thead><tbody>`;
+                    data.forEach(r => {
+                        const badge = r.status === 'approved' ? 'badge-success' :
+                            r.status === 'under_review' ? 'badge-warning' :
+                            r.status === 'archived' ? 'badge-secondary' : 'badge-info';
+                        html += `<tr>
+                            <td><strong>${r.processing_activity}</strong></td>
+                            <td>${r.purpose?.substring(0, 40) || '-'}${r.purpose?.length > 40 ? '...' : ''}</td>
+                            <td>${r.lawful_basis || '-'}</td>
+                            <td><span class="badge ${badge}">${r.status}</span></td>
+                            <td>v${r.version || 1}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editRopa(${r.id})">✏️</button>
+                                <button class="btn btn-sm btn-warning" onclick="updateRopaStatus(${r.id},'under_review')">📋 Review</button>
+                                <button class="btn btn-sm btn-success" onclick="updateRopaStatus(${r.id},'approved','Admin')">✅ Approve</button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('ropaTable').innerHTML = html;
+                document.getElementById('ropaBadge').textContent = data.length;
+            } catch (e) {
+                document.getElementById('ropaTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openRopaModal(data) {
+            await populateProjects('ropaProjectId');
+            document.getElementById('ropaEditId').value = data?.id || '';
+            document.getElementById('ropaModalTitle').textContent = data ? 'Edit RoPA' : 'New RoPA Record';
+            setVal('ropaProjectId', data?.project_id || '');
+            setVal('ropaActivity', data?.processing_activity || '');
+            setVal('ropaPurpose', data?.purpose || '');
+            setVal('ropaLawfulBasis', data?.lawful_basis || '');
+            setVal('ropaRetention', data?.retention_period || '');
+            setVal('ropaController', data?.controller_name || '');
+            setVal('ropaControllerEmail', data?.controller_email || '');
+            setVal('ropaProcessor', data?.processor_name || '');
+            setVal('ropaProcessorEmail', data?.processor_email || '');
+            setVal('ropaDPO', data?.data_protection_officer || '');
+            setVal('ropaDPOEmail', data?.dpo_email || '');
+            setVal('ropaRegNumber', data?.registration_number || '');
+            setVal('ropaSubjects', joinComma(data?.data_subjects));
+            setVal('ropaCategories', joinComma(data?.personal_data_categories));
+            setVal('ropaRecipients', joinComma(data?.recipients));
+            setVal('ropaSecurity', joinComma(data?.security_measures));
+            setVal('ropaTransfers', data?.international_transfers?.map(t => `${t.country}:${t.legal_basis}`).join(', ') ||
+                '');
+            openModal('ropaModal');
+        }
+
+        async function editRopa(id) {
+            try {
+                const res = await fetch(`${API}/ropa/single/${id}`);
+                const data = await res.json();
+                openRopaModal(data);
+            } catch (e) { toast('Error loading RoPA', 'error'); }
+        }
+
+        async function updateRopaStatus(id, status, approved_by = '') {
+            try {
+                await fetch(`${API}/ropa/${id}/status?status=${status}&approved_by=${approved_by}`, { method: 'PUT' });
+                toast(`RoPA status: ${status}`, 'success');
+                loadRopa();
+                loadDashboard();
+            } catch (e) { toast('Error', 'error'); }
+        }
+
+        document.getElementById('ropaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('ropaEditId');
+            const transfers = splitComma(getVal('ropaTransfers')).map(s => {
+                const parts = s.split(':');
+                return { country: parts[0] || '', legal_basis: parts[1] || '' };
+            });
+            const data = {
+                project_id: parseInt(getVal('ropaProjectId')),
+                processing_activity: getVal('ropaActivity'),
+                purpose: getVal('ropaPurpose'),
+                lawful_basis: getVal('ropaLawfulBasis'),
+                data_subjects: splitComma(getVal('ropaSubjects')),
+                personal_data_categories: splitComma(getVal('ropaCategories')),
+                recipients: splitComma(getVal('ropaRecipients')),
+                retention_period: getVal('ropaRetention'),
+                security_measures: splitComma(getVal('ropaSecurity')),
+                international_transfers: transfers,
+                controller_name: getVal('ropaController'),
+                controller_email: getVal('ropaControllerEmail'),
+                processor_name: getVal('ropaProcessor'),
+                processor_email: getVal('ropaProcessorEmail'),
+                data_protection_officer: getVal('ropaDPO'),
+                dpo_email: getVal('ropaDPOEmail'),
+                registration_number: getVal('ropaRegNumber')
+            };
+            try {
+                const url = id ? `${API}/ropa/${id}` : `${API}/ropa`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'RoPA updated' : 'RoPA created', 'success');
+                    closeModal('ropaModal');
+                    loadRopa();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── DPIA ────────────────────────────────────────────────────
+        async function loadDpia() {
+            try {
+                const res = await fetch(`${API}/dpia`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">🔍</div><h4>No DPIAs</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Project</th><th>DPIA Required</th><th>Screening</th><th>Status</th><th>Version</th><th>Actions</th></tr></thead><tbody>`;
+                    for (const d of data) {
+                        const proj = await fetch(`${API}/projects/${d.project_id}`).then(r => r.json()).catch(() =>
+                            null);
+                        const badge = d.status === 'approved' ? 'badge-success' :
+                            d.status === 'under_review' ? 'badge-warning' : 'badge-info';
+                        const required = d.dpia_required ? '✅ Yes' : '❌ No';
+                        const screening = [];
+                        if (d.processes_sensitive_data) screening.push('Sensitive');
+                        if (d.uses_ai) screening.push('AI');
+                        if (d.monitors_individuals) screening.push('Monitor');
+                        if (d.processes_children_data) screening.push('Children');
+                        if (d.automated_decision_making) screening.push('Auto-Decision');
+                        html += `<tr>
+                            <td><strong>${proj?.name || 'N/A'}</strong></td>
+                            <td>${required}</td>
+                            <td>${screening.join(', ') || 'None'}</td>
+                            <td><span class="badge ${badge}">${d.status}</span></td>
+                            <td>v${d.version || 1}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editDpia(${d.id})">✏️</button>
+                                <button class="btn btn-sm btn-warning" onclick="updateDpiaStatus(${d.id},'under_review')">📋 Review</button>
+                                <button class="btn btn-sm btn-success" onclick="updateDpiaStatus(${d.id},'approved','Admin')">✅ Approve</button>
+                            </td>
+                        </tr>`;
+                    }
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('dpiaTable').innerHTML = html;
+                document.getElementById('dpiaBadge').textContent = data.length;
+            } catch (e) {
+                document.getElementById('dpiaTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openDpiaModal(data) {
+            await populateProjects('dpiaProjectId');
+            document.getElementById('dpiaEditId').value = data?.id || '';
+            document.getElementById('dpiaModalTitle').textContent = data ? 'Edit DPIA' : 'New DPIA';
+
+            setVal('dpiaProjectId', data?.project_id || '');
+            setVal('dpiaRopaId', data?.ropa_id || '');
+
+            const projectId = data?.project_id || '';
+            if (projectId) {
+                await populateRopa('dpiaRopaId', projectId);
+            }
+
+            // Step 1: Screening
+            setCheck('dpiaSensitive', data?.processes_sensitive_data);
+            setCheck('dpiaAI', data?.uses_ai);
+            setCheck('dpiaMonitor', data?.monitors_individuals);
+            setCheck('dpiaChildren', data?.processes_children_data);
+            setCheck('dpiaAutomated', data?.automated_decision_making);
+            setCheck('dpiaLargeScale', data?.large_scale_processing);
+            setCheck('dpiaSystematic', data?.systematic_monitoring);
+            setCheck('dpiaInnovative', data?.innovative_technology);
+            setVal('dpiaScreeningNotes', data?.screening_notes || '');
+
+            // Step 2: Description
+            setVal('dpiaName', data?.name || '');
+            setVal('dpiaDepartment', data?.owner_department || '');
+            setVal('dpiaEmail', data?.contact_email || '');
+            setVal('dpiaProcessingType', data?.processing_type || 'Controller');
+            setVal('dpiaClassification', data?.classification || 'Personal');
+            setVal('dpiaSubjectCount', data?.data_subjects_count || '');
+            setVal('dpiaLawfulBasis', data?.lawful_basis || '');
+            setVal('dpiaPurpose', data?.purpose || '');
+            setVal('dpiaDataTypes', joinComma(data?.data_types));
+            setVal('dpiaHighRisk', data?.high_risk_type || '');
+            setVal('dpiaDataFlow', data?.data_flow || '');
+
+            // Step 3: Necessity & Proportionality
+            setVal('dpiaLawfulDesc', data?.lawful_basis_description || '');
+            setVal('dpiaAchieves', data?.achieves_purpose || 'true');
+            setVal('dpiaQuality', data?.data_quality_minimization || '');
+            setVal('dpiaConsent', data?.consent_obtained || '');
+            setVal('dpiaAlternatives', data?.alternative_approaches || '');
+            setVal('dpiaInfo', data?.information_to_individuals || '');
+            setVal('dpiaParties', data?.parties_involved || '');
+            setVal('dpiaTransfers', data?.international_transfers || '');
+            setVal('dpiaCompliance', data?.compliance_measures || '');
+            setVal('dpiaSafeguards', data?.safeguarding_measures || '');
+
+            // Step 4: Risk Identification
+            riskList = data?.risks || [];
+            renderRiskList();
+
+            // Step 5: Risk Evaluation
+            setCheck('impactFinancial', data?.impact_financial);
+            setCheck('impactIdentity', data?.impact_identity);
+            setCheck('impactDiscrimination', data?.impact_discrimination);
+            setCheck('impactReputation', data?.impact_reputation);
+            setCheck('impactConfidentiality', data?.impact_confidentiality);
+            setCheck('impactPhysical', data?.impact_physical);
+            setCheck('impactPsychological', data?.impact_psychological);
+            setCheck('impactRights', data?.impact_rights);
+            setCheck('impactOther', data?.impact_other);
+            setVal('impactRating', data?.impact_rating || 'Medium');
+            setVal('impactDescription', data?.impact_description || '');
+
+            setCheck('likelihoodSensitive', data?.likelihood_sensitive);
+            setCheck('likelihoodLargeVolume', data?.likelihood_large_volume);
+            setCheck('likelihoodAutomated', data?.likelihood_automated);
+            setCheck('likelihoodThirdParty', data?.likelihood_third_party);
+            setCheck('likelihoodInternational', data?.likelihood_international);
+            setCheck('likelihoodChildren', data?.likelihood_children);
+            setCheck('likelihoodNewTech', data?.likelihood_new_tech);
+
+            setCheck('controlEncryption', data?.control_encryption);
+            setCheck('controlAccess', data?.control_access);
+            setCheck('controlMFA', data?.control_mfa);
+            setCheck('controlLogging', data?.control_logging);
+            setCheck('controlMinimization', data?.control_minimization);
+            setCheck('controlRetention', data?.control_retention);
+            setCheck('controlVendor', data?.control_vendor);
+            setCheck('controlTraining', data?.control_training);
+            setCheck('controlIncident', data?.control_incident);
+            setCheck('controlOther', data?.control_other);
+            setVal('controlDescription', data?.control_description || '');
+
+            setVal('mitigationAction', data?.mitigation_action || '');
+            setVal('mitigationOwner', data?.mitigation_owner || '');
+            setVal('mitigationDueDate', data?.mitigation_due_date || '');
+            setVal('mitigationStatus', data?.mitigation_status || 'Open');
+            setVal('mitigationNotes', data?.mitigation_notes || '');
+
+            // Step 6: Privacy-by-Design
+            setCheck('pbdMinimization', data?.pbd_minimization);
+            setCheck('pbdRetention', data?.pbd_retention);
+            setCheck('pbdEncryption', data?.pbd_encryption);
+            setCheck('pbdMFA', data?.pbd_mfa);
+            setCheck('pbdAccess', data?.pbd_access);
+            setCheck('pbdAudit', data?.pbd_audit);
+            setCheck('pbdConsent', data?.pbd_consent);
+            setCheck('pbdAnonymization', data?.pbd_anonymization);
+            setCheck('pbdBreach', data?.pbd_breach);
+            setCheck('pbdTraining', data?.pbd_training);
+            setVal('dpiaPbdNotes', data?.pbd_notes || '');
+
+            setTimeout(() => {
+                calculateLikelihood();
+                calculateControls();
+                calculateResidualRisk();
+            }, 200);
+
+            openModal('dpiaModal');
+        }
+
+        document.getElementById('dpiaProjectId').addEventListener('change', function() {
+            populateRopa('dpiaRopaId', this.value);
+        });
+
+        document.getElementById('addRiskBtn').addEventListener('click', addRisk);
+
+        // ─── RISK EVALUATION EVENT LISTENERS ──────────────────────
+        const likelihoodCheckboxes = [
+            'likelihoodSensitive', 'likelihoodLargeVolume', 'likelihoodAutomated',
+            'likelihoodThirdParty', 'likelihoodInternational', 'likelihoodChildren', 'likelihoodNewTech'
+        ];
+        likelihoodCheckboxes.forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                calculateLikelihood();
+                calculateResidualRisk();
+            });
+        });
+
+        document.getElementById('impactRating').addEventListener('change', function() {
+            calculateResidualRisk();
+        });
+
+        const controlCheckboxes = [
+            'controlEncryption', 'controlAccess', 'controlMFA', 'controlLogging',
+            'controlMinimization', 'controlRetention', 'controlVendor',
+            'controlTraining', 'controlIncident', 'controlOther'
+        ];
+        controlCheckboxes.forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                calculateControls();
+            });
+        });
+
+        async function editDpia(id) {
+            try {
+                const res = await fetch(`${API}/dpia/single/${id}`);
+                const data = await res.json();
+                openDpiaModal(data);
+            } catch (e) { toast('Error loading DPIA', 'error'); }
+        }
+
+        async function updateDpiaStatus(id, status, approved_by = '') {
+            try {
+                await fetch(`${API}/dpia/${id}/status?status=${status}&approved_by=${approved_by}`, { method: 'PUT' });
+                toast(`DPIA status: ${status}`, 'success');
+                loadDpia();
+                loadDashboard();
+            } catch (e) { toast('Error', 'error'); }
+        }
+
+        document.getElementById('dpiaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('dpiaEditId');
+            const risks = riskList;
+
+            const data = {
+                project_id: parseInt(getVal('dpiaProjectId')),
+                ropa_id: parseInt(getVal('dpiaRopaId')) || null,
+                processes_sensitive_data: getCheck('dpiaSensitive'),
+                uses_ai: getCheck('dpiaAI'),
+                monitors_individuals: getCheck('dpiaMonitor'),
+                processes_children_data: getCheck('dpiaChildren'),
+                automated_decision_making: getCheck('dpiaAutomated'),
+                large_scale_processing: getCheck('dpiaLargeScale'),
+                systematic_monitoring: getCheck('dpiaSystematic'),
+                innovative_technology: getCheck('dpiaInnovative'),
+                screening_notes: getVal('dpiaScreeningNotes'),
+                name: getVal('dpiaName'),
+                owner_department: getVal('dpiaDepartment'),
+                contact_email: getVal('dpiaEmail'),
+                processing_type: getVal('dpiaProcessingType'),
+                classification: getVal('dpiaClassification'),
+                data_subjects_count: parseInt(getVal('dpiaSubjectCount')) || 0,
+                lawful_basis: getVal('dpiaLawfulBasis'),
+                purpose: getVal('dpiaPurpose'),
+                data_types: splitComma(getVal('dpiaDataTypes')),
+                high_risk_type: getVal('dpiaHighRisk'),
+                data_flow: getVal('dpiaDataFlow'),
+                lawful_basis_description: getVal('dpiaLawfulDesc'),
+                achieves_purpose: getVal('dpiaAchieves'),
+                data_quality_minimization: getVal('dpiaQuality'),
+                consent_obtained: getVal('dpiaConsent'),
+                alternative_approaches: getVal('dpiaAlternatives'),
+                information_to_individuals: getVal('dpiaInfo'),
+                parties_involved: getVal('dpiaParties'),
+                international_transfers: getVal('dpiaTransfers'),
+                compliance_measures: getVal('dpiaCompliance'),
+                safeguarding_measures: getVal('dpiaSafeguards'),
+                risks: risks,
+                impact_financial: getCheck('impactFinancial'),
+                impact_identity: getCheck('impactIdentity'),
+                impact_discrimination: getCheck('impactDiscrimination'),
+                impact_reputation: getCheck('impactReputation'),
+                impact_confidentiality: getCheck('impactConfidentiality'),
+                impact_physical: getCheck('impactPhysical'),
+                impact_psychological: getCheck('impactPsychological'),
+                impact_rights: getCheck('impactRights'),
+                impact_other: getCheck('impactOther'),
+                impact_rating: getVal('impactRating'),
+                impact_description: getVal('impactDescription'),
+                likelihood_sensitive: getCheck('likelihoodSensitive'),
+                likelihood_large_volume: getCheck('likelihoodLargeVolume'),
+                likelihood_automated: getCheck('likelihoodAutomated'),
+                likelihood_third_party: getCheck('likelihoodThirdParty'),
+                likelihood_international: getCheck('likelihoodInternational'),
+                likelihood_children: getCheck('likelihoodChildren'),
+                likelihood_new_tech: getCheck('likelihoodNewTech'),
+                control_encryption: getCheck('controlEncryption'),
+                control_access: getCheck('controlAccess'),
+                control_mfa: getCheck('controlMFA'),
+                control_logging: getCheck('controlLogging'),
+                control_minimization: getCheck('controlMinimization'),
+                control_retention: getCheck('controlRetention'),
+                control_vendor: getCheck('controlVendor'),
+                control_training: getCheck('controlTraining'),
+                control_incident: getCheck('controlIncident'),
+                control_other: getCheck('controlOther'),
+                control_description: getVal('controlDescription'),
+                mitigation_action: getVal('mitigationAction'),
+                mitigation_owner: getVal('mitigationOwner'),
+                mitigation_due_date: getVal('mitigationDueDate') || null,
+                mitigation_status: getVal('mitigationStatus'),
+                mitigation_notes: getVal('mitigationNotes'),
+                pbd_minimization: getCheck('pbdMinimization'),
+                pbd_retention: getCheck('pbdRetention'),
+                pbd_encryption: getCheck('pbdEncryption'),
+                pbd_mfa: getCheck('pbdMFA'),
+                pbd_access: getCheck('pbdAccess'),
+                pbd_audit: getCheck('pbdAudit'),
+                pbd_consent: getCheck('pbdConsent'),
+                pbd_anonymization: getCheck('pbdAnonymization'),
+                pbd_breach: getCheck('pbdBreach'),
+                pbd_training: getCheck('pbdTraining'),
+                pbd_notes: getVal('dpiaPbdNotes')
+            };
+
+            try {
+                const url = id ? `${API}/dpia/${id}` : `${API}/dpia`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    toast(id ? 'DPIA updated' : 'DPIA created', 'success');
+                    closeModal('dpiaModal');
+                    loadDpia();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) {
+                toast('Network error', 'error');
+            }
+        });
+
+        // ─── VENDORS ─────────────────────────────────────────────────
+        async function loadVendors() {
+            try {
+                const res = await fetch(`${API}/vendors/1`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">🏢</div><h4>No vendors</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Vendor</th><th>Location</th><th>Certifications</th><th>DPA</th><th>Risk</th></tr></thead><tbody>`;
+                    data.forEach(v => {
+                        const badge = v.risk_rating === 'Critical' ? 'badge-danger' :
+                            v.risk_rating === 'High' ? 'badge-danger' :
+                            v.risk_rating === 'Medium' ? 'badge-warning' : 'badge-success';
+                        html += `<tr>
+                            <td><strong>${v.vendor_name}</strong></td>
+                            <td>${v.hosting_location || '-'}</td>
+                            <td>${v.security_certifications?.join(', ') || '-'}</td>
+                            <td>${v.dpa_signed ? '✅' : '❌'}</td>
+                            <td><span class="badge ${badge}">${v.risk_rating}</span></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('vendorTable').innerHTML = html;
+            } catch (e) {
+                document.getElementById('vendorTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openVendorModal(data) {
+            await populateProjects('vendorProjectId');
+            document.getElementById('vendorEditId').value = data?.id || '';
+            setVal('vendorProjectId', data?.project_id || '');
+            setVal('vendorName', data?.vendor_name || '');
+            setVal('vendorLocation', data?.hosting_location || '');
+            setVal('vendorRisk', data?.risk_rating || 'Medium');
+            setVal('vendorCerts', joinComma(data?.security_certifications));
+            setCheck('vendorDPA', data?.dpa_signed);
+            setVal('vendorDPADate', data?.dpa_date ? data.dpa_date.split('T')[0] : '');
+            setVal('vendorSubProcessors', joinComma(data?.sub_processors));
+            setVal('vendorNotes', data?.assessment_notes || '');
+            setVal('vendorAssessmentDate', data?.assessment_date ? data.assessment_date.split('T')[0] : '');
+            setVal('vendorNextDate', data?.next_assessment_date ? data.next_assessment_date.split('T')[0] : '');
+            openModal('vendorModal');
+        }
+
+        document.getElementById('vendorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('vendorEditId');
+            const data = {
+                project_id: parseInt(getVal('vendorProjectId')),
+                vendor_name: getVal('vendorName'),
+                hosting_location: getVal('vendorLocation'),
+                security_certifications: splitComma(getVal('vendorCerts')),
+                dpa_signed: getCheck('vendorDPA'),
+                dpa_date: getVal('vendorDPADate') || null,
+                sub_processors: splitComma(getVal('vendorSubProcessors')),
+                risk_rating: getVal('vendorRisk'),
+                assessment_notes: getVal('vendorNotes'),
+                assessment_date: getVal('vendorAssessmentDate') || null,
+                next_assessment_date: getVal('vendorNextDate') || null
+            };
+            try {
+                const url = id ? `${API}/vendors/${id}` : `${API}/vendors`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Vendor updated' : 'Vendor added', 'success');
+                    closeModal('vendorModal');
+                    loadVendors();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── APPLICATIONS ────────────────────────────────────────────
+        async function loadApps() {
+            try {
+                const res = await fetch(`${API}/applications/1`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">💻</div><h4>No applications</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>App Name</th><th>Owner</th><th>Classification</th><th>Hosting</th><th>Users</th></tr></thead><tbody>`;
+                    data.forEach(a => {
+                        const badge = a.compliance_status === 'assessed' ? 'badge-success' :
+                            a.compliance_status === 'in_progress' ? 'badge-warning' : 'badge-secondary';
+                        html += `<tr>
+                            <td><strong>${a.application_name}</strong></td>
+                            <td>${a.application_owner || '-'}</td>
+                            <td><span class="badge badge-info">${a.data_classification}</span></td>
+                            <td>${a.hosting_environment}</td>
+                            <td>${a.users || 0}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('appTable').innerHTML = html;
+            } catch (e) {
+                document.getElementById('appTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openAppModal(data) {
+            await populateProjects('appProjectId');
+            document.getElementById('appEditId').value = data?.id || '';
+            setVal('appProjectId', data?.project_id || '');
+            setVal('appName', data?.application_name || '');
+            setVal('appOwner', data?.application_owner || '');
+            setVal('appDept', data?.department || '');
+            setVal('appDescription', data?.description || '');
+            setVal('appClassification', data?.data_classification || 'Personal');
+            setVal('appHosting', data?.hosting_environment || 'Cloud');
+            setVal('appCloud', data?.cloud_provider || '');
+            setVal('appData', joinComma(data?.data_processed));
+            setVal('appUsers', data?.users || '');
+            setVal('appIntegrations', joinComma(data?.third_party_integrations));
+            setVal('appControls', joinComma(data?.security_controls));
+            setVal('appLastDate', data?.last_assessment_date ? data.last_assessment_date.split('T')[0] : '');
+            setVal('appNextDate', data?.next_assessment_date ? data.next_assessment_date.split('T')[0] : '');
+            openModal('appModal');
+        }
+
+        document.getElementById('appForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('appEditId');
+            const data = {
+                project_id: parseInt(getVal('appProjectId')),
+                application_name: getVal('appName'),
+                application_owner: getVal('appOwner'),
+                department: getVal('appDept'),
+                description: getVal('appDescription'),
+                data_classification: getVal('appClassification'),
+                hosting_environment: getVal('appHosting'),
+                cloud_provider: getVal('appCloud'),
+                data_processed: splitComma(getVal('appData')),
+                users: parseInt(getVal('appUsers')) || 0,
+                third_party_integrations: splitComma(getVal('appIntegrations')),
+                security_controls: splitComma(getVal('appControls')),
+                last_assessment_date: getVal('appLastDate') || null,
+                next_assessment_date: getVal('appNextDate') || null
+            };
+            try {
+                const url = id ? `${API}/applications/${id}` : `${API}/applications`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Application updated' : 'Application added', 'success');
+                    closeModal('appModal');
+                    loadApps();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── THIRD PARTIES ───────────────────────────────────────────
+        async function loadThirdParties() {
+            try {
+                const res = await fetch(`${API}/third-parties/1`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">🤝</div><h4>No third parties</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Service</th><th>Role</th><th>DPA</th><th>Risk</th></tr></thead><tbody>`;
+                    data.forEach(t => {
+                        const badge = t.risk_rating === 'Critical' ? 'badge-danger' :
+                            t.risk_rating === 'High' ? 'badge-danger' :
+                            t.risk_rating === 'Medium' ? 'badge-warning' : 'badge-success';
+                        html += `<tr>
+                            <td><strong>${t.third_party_name}</strong></td>
+                            <td>${t.service_type || '-'}</td>
+                            <td>${t.processing_role}</td>
+                            <td>${t.dpa_signed ? '✅' : '❌'}</td>
+                            <td><span class="badge ${badge}">${t.risk_rating}</span></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('thirdPartyTable').innerHTML = html;
+            } catch (e) {
+                document.getElementById('thirdPartyTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openThirdPartyModal(data) {
+            await populateProjects('tpProjectId');
+            document.getElementById('tpEditId').value = data?.id || '';
+            setVal('tpProjectId', data?.project_id || '');
+            setVal('tpName', data?.third_party_name || '');
+            setVal('tpService', data?.service_type || '');
+            setVal('tpRole', data?.processing_role || 'Processor');
+            setVal('tpContact', data?.contact_person || '');
+            setVal('tpEmail', data?.contact_email || '');
+            setVal('tpPhone', data?.contact_phone || '');
+            setVal('tpJurisdiction', data?.jurisdiction || '');
+            setVal('tpLaw', data?.applicable_law || 'Kenya Data Protection Act 2019');
+            setVal('tpRisk', data?.risk_rating || 'Medium');
+            setVal('tpData', joinComma(data?.data_shared));
+            setCheck('tpDPA', data?.dpa_signed);
+            setVal('tpDPADate', data?.dpa_date ? data.dpa_date.split('T')[0] : '');
+            setVal('tpCerts', joinComma(data?.security_certifications));
+            openModal('thirdPartyModal');
+        }
+
+        document.getElementById('thirdPartyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('tpEditId');
+            const data = {
+                project_id: parseInt(getVal('tpProjectId')),
+                third_party_name: getVal('tpName'),
+                service_type: getVal('tpService'),
+                contact_person: getVal('tpContact'),
+                contact_email: getVal('tpEmail'),
+                contact_phone: getVal('tpPhone'),
+                jurisdiction: getVal('tpJurisdiction'),
+                applicable_law: getVal('tpLaw'),
+                processing_role: getVal('tpRole'),
+                data_shared: splitComma(getVal('tpData')),
+                dpa_signed: getCheck('tpDPA'),
+                dpa_date: getVal('tpDPADate') || null,
+                security_certifications: splitComma(getVal('tpCerts')),
+                risk_rating: getVal('tpRisk')
+            };
+            try {
+                const url = id ? `${API}/third-parties/${id}` : `${API}/third-parties`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Third party updated' : 'Third party added', 'success');
+                    closeModal('thirdPartyModal');
+                    loadThirdParties();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── SECURITY CONTROLS ──────────────────────────────────────
+        async function loadControls() {
+            try {
+                const res = await fetch(`${API}/controls`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">🛡️</div><h4>No security controls</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Control</th><th>Type</th><th>ISO 27001</th><th>Kenya DPA</th><th>Status</th></tr></thead><tbody>`;
+                    data.forEach(c => {
+                        const badge = c.implementation_status === 'implemented' ? 'badge-success' :
+                            c.implementation_status === 'in_progress' ? 'badge-warning' : 'badge-secondary';
+                        html += `<tr>
+                            <td><strong>${c.control_name}</strong></td>
+                            <td>${c.control_type}</td>
+                            <td>${c.iso_27001_mapping?.join(', ') || '-'}</td>
+                            <td>${c.kenya_dpa_mapping?.join(', ') || '-'}</td>
+                            <td><span class="badge ${badge}">${c.implementation_status}</span></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('controlTable').innerHTML = html;
+            } catch (e) {
+                document.getElementById('controlTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        function openControlModal(data) {
+            document.getElementById('controlEditId').value = data?.id || '';
+            setVal('controlName', data?.control_name || '');
+            setVal('controlDesc', data?.control_description || '');
+            setVal('controlType', data?.control_type || 'Technical');
+            setVal('controlStatus', data?.implementation_status || 'not_implemented');
+            setVal('controlISO', joinComma(data?.iso_27001_mapping));
+            setVal('controlNIST', joinComma(data?.nist_mapping));
+            setVal('controlKenya', joinComma(data?.kenya_dpa_mapping));
+            setVal('controlGDPR', joinComma(data?.gdpr_mapping));
+            setVal('controlOwner', data?.owner || '');
+            setVal('controlEvidence', data?.evidence_url || '');
+            openModal('controlModal');
+        }
+
+        document.getElementById('controlForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('controlEditId');
+            const data = {
+                control_name: getVal('controlName'),
+                control_description: getVal('controlDesc'),
+                control_type: getVal('controlType'),
+                iso_27001_mapping: splitComma(getVal('controlISO')),
+                nist_mapping: splitComma(getVal('controlNIST')),
+                kenya_dpa_mapping: splitComma(getVal('controlKenya')),
+                gdpr_mapping: splitComma(getVal('controlGDPR')),
+                implementation_status: getVal('controlStatus'),
+                evidence_url: getVal('controlEvidence'),
+                owner: getVal('controlOwner')
+            };
+            try {
+                const url = id ? `${API}/controls/${id}` : `${API}/controls`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Control updated' : 'Control added', 'success');
+                    closeModal('controlModal');
+                    loadControls();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── EVIDENCE ────────────────────────────────────────────────
+        async function loadEvidence() {
+            try {
+                const res = await fetch(`${API}/evidence/1`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">📎</div><h4>No evidence uploaded</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Title</th><th>Type</th><th>Version</th><th>Uploaded</th><th>Link</th></tr></thead><tbody>`;
+                    data.forEach(e => {
+                        html += `<tr>
+                            <td><strong>${e.title}</strong></td>
+                            <td>${e.document_type}</td>
+                            <td>${e.version}</td>
+                            <td>${formatDate(e.upload_date)}</td>
+                            <td><a href="${e.file_url}" target="_blank" class="btn btn-sm btn-primary">📄 View</a></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('evidenceTable').innerHTML = html;
+            } catch (e) {
+                document.getElementById('evidenceTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openEvidenceModal(data) {
+            await populateProjects('evidenceProjectId');
+            document.getElementById('evidenceEditId').value = data?.id || '';
+            setVal('evidenceProjectId', data?.project_id || '');
+            setVal('evidenceTitle', data?.title || '');
+            setVal('evidenceType', data?.document_type || 'Other');
+            setVal('evidenceVersion', data?.version || '1.0');
+            setVal('evidenceDesc', data?.description || '');
+            setVal('evidenceFile', data?.file_url || '');
+            setVal('evidenceUploader', data?.uploaded_by || '');
+            openModal('evidenceModal');
+        }
+
+        document.getElementById('evidenceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('evidenceEditId');
+            const data = {
+                project_id: parseInt(getVal('evidenceProjectId')),
+                title: getVal('evidenceTitle'),
+                description: getVal('evidenceDesc'),
+                document_type: getVal('evidenceType'),
+                file_url: getVal('evidenceFile'),
+                uploaded_by: getVal('evidenceUploader') || 'System',
+                version: getVal('evidenceVersion')
+            };
+            try {
+                const url = id ? `${API}/evidence/${id}` : `${API}/evidence`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'Evidence updated' : 'Evidence uploaded', 'success');
+                    closeModal('evidenceModal');
+                    loadEvidence();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── DSAR ────────────────────────────────────────────────────
+        async function loadDsar() {
+            try {
+                const res = await fetch(`${API}/dsar`);
+                const data = await res.json();
+                let html = '';
+                if (data.length === 0) {
+                    html = '<div class="empty-state"><div class="icon">📩</div><h4>No DSARs</h4></div>';
+                } else {
+                    html =
+                        `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
+                    data.forEach(d => {
+                        const badge = d.status === 'completed' ? 'badge-success' :
+                            d.status === 'rejected' ? 'badge-danger' :
+                            d.status === 'in_progress' ? 'badge-warning' : 'badge-secondary';
+                        html += `<tr>
+                            <td><strong>${d.full_name}</strong></td>
+                            <td>${d.email}</td>
+                            <td>${d.request_type}</td>
+                            <td><span class="badge ${badge}">${d.status}</span></td>
+                            <td>${formatDate(d.created_at)}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="respondDsar(${d.id})">💬 Respond</button>
+                                ${d.status !== 'completed' && d.status !== 'rejected' ? 
+                                    `<button class="btn btn-sm btn-success" onclick="updateDsarStatus(${d.id},'completed')">✅ Complete</button>` : ''}
+                                ${d.status !== 'rejected' ? 
+                                    `<button class="btn btn-sm btn-danger" onclick="updateDsarStatus(${d.id},'rejected')">❌ Reject</button>` : ''}
+                                <button class="btn btn-sm btn-danger" onclick="deleteDsar(${d.id})">🗑️</button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                }
+                document.getElementById('dsarTable').innerHTML = html;
+                document.getElementById('dsarBadge').textContent = data.length;
+            } catch (e) {
+                document.getElementById('dsarTable').innerHTML = '<p class="text-muted">⚠️ Error loading data.</p>';
+            }
+        }
+
+        async function openDsarModal(data) {
+            await populateProjects('dsarProjectId');
+            document.getElementById('dsarEditId').value = data?.id || '';
+            document.getElementById('dsarModalTitle').textContent = data ? 'Edit DSAR' : 'New DSAR';
+            setVal('dsarProjectId', data?.project_id || '');
+            setVal('dsarName', data?.full_name || '');
+            setVal('dsarEmail', data?.email || '');
+            setVal('dsarPhone', data?.phone || '');
+            setVal('dsarType', data?.request_type || 'Access');
+            setVal('dsarMessage', data?.message || '');
+            setCheck('dsarConsent', data?.consent_given);
+            openModal('dsarModal');
+        }
+
+        async function respondDsar(id) {
+            try {
+                const res = await fetch(`${API}/dsar/${id}`);
+                const data = await res.json();
+                document.getElementById('dsarResponseId').value = id;
+                setVal('dsarResponseStatus', data.status);
+                setVal('dsarResponseText', data.response || '');
+                openModal('dsarResponseModal');
+            } catch (e) {
+                toast('Error loading DSAR', 'error');
+            }
+        }
+
+        async function updateDsarStatus(id, status) {
+            try {
+                const response = status === 'completed' ? prompt('Enter response message (optional):') : '';
+                const res = await fetch(`${API}/dsar/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: status, response: response || '' })
+                });
+                if (res.ok) {
+                    toast(`DSAR status: ${status}`, 'success');
+                    loadDsar();
+                    loadDashboard();
+                }
+            } catch (e) { toast('Error', 'error'); }
+        }
+
+        async function deleteDsar(id) {
+            if (!confirm('Delete this DSAR?')) return;
+            try {
+                await fetch(`${API}/dsar/${id}`, { method: 'DELETE' });
+                toast('DSAR deleted', 'success');
+                loadDsar();
+                loadDashboard();
+            } catch (e) { toast('Error deleting', 'error'); }
+        }
+
+        document.getElementById('dsarForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('dsarEditId');
+            const data = {
+                project_id: parseInt(getVal('dsarProjectId')) || null,
+                full_name: getVal('dsarName'),
+                email: getVal('dsarEmail'),
+                phone: getVal('dsarPhone'),
+                message: getVal('dsarMessage'),
+                request_type: getVal('dsarType'),
+                consent_given: getCheck('dsarConsent')
+            };
+            try {
+                const url = id ? `${API}/dsar/${id}` : `${API}/dsar`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON
+                        .stringify(data) });
+                if (res.ok) {
+                    toast(id ? 'DSAR updated' : 'DSAR submitted', 'success');
+                    closeModal('dsarModal');
+                    loadDsar();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        document.getElementById('dsarResponseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = getVal('dsarResponseId');
+            const data = {
+                status: getVal('dsarResponseStatus'),
+                response: getVal('dsarResponseText')
+            };
+            try {
+                const res = await fetch(`${API}/dsar/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    toast('DSAR updated successfully', 'success');
+                    closeModal('dsarResponseModal');
+                    loadDsar();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    toast('Error: ' + (err.detail || 'Unknown'), 'error');
+                }
+            } catch (e) { toast('Network error', 'error'); }
+        });
+
+        // ─── INIT ────────────────────────────────────────────────────
+        loadDashboard();
+        console.log('🔒 Privy loaded!');
+        console.log('📡 API:', API);
+        console.log('💡 Make sure backend is running: python main.py');
+    </script>
+</body>
+</html>
