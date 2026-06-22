@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, JSON, DateTime, Text, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
@@ -9,6 +9,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 import json
 import uuid
+import os
 
 # ============ DATABASE ============
 SQLALCHEMY_DATABASE_URL = "sqlite:///./privy.db"
@@ -778,6 +779,28 @@ class DSARUpdate(BaseModel):
 
 # ============ FASTAPI APP ============
 app = FastAPI(title="Privy - Compliance Management Platform")
+# ============ SERVE FRONTEND FILES ============
+
+@app.get("/")
+async def root():
+    """Serve the login page as the root URL"""
+    with open("auth.html", "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
+
+@app.get("/{filename}")
+async def serve_static(filename: str):
+    """Serve any HTML or static file"""
+    if filename.endswith('.html'):
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                return HTMLResponse(content=f.read())
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="Page not found")
+    else:
+        try:
+            return FileResponse(filename)
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="File not found")
 
 app.add_middleware(
     CORSMiddleware,
@@ -786,26 +809,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/")
-def root():
-    return {
-        "message": "Privy - Compliance Management Platform",
-        "version": "1.0",
-        "modules": {
-            "projects": "/api/projects",
-            "data_mapping": "/api/data-mapping",
-            "ropa": "/api/ropa",
-            "dpia": "/api/dpia",
-            "vendors": "/api/vendors",
-            "applications": "/api/applications",
-            "third_parties": "/api/third-parties",
-            "controls": "/api/controls",
-            "evidence": "/api/evidence",
-            "dsar": "/api/dsar",
-            "dsar_portal": "/api/dsar-portal"
-        }
-    }
 
 @app.get("/api/health")
 def health():
